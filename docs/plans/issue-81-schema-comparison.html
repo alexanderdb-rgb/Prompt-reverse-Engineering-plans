@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<style>
+  body {
+    background: #1a1a1a;
+    color: #e0e0e0;
+    font-family: 'Segoe UI', system-ui, sans-serif;
+    padding: 40px;
+    margin: 0;
+  }
+  h1 {
+    text-align: center;
+    color: #ffffff;
+    font-size: 28px;
+    margin-bottom: 40px;
+  }
+  .container {
+    display: flex;
+    gap: 40px;
+    justify-content: center;
+    align-items: flex-start;
+  }
+  .schema-box {
+    background: #252525;
+    border: 2px solid #444;
+    border-radius: 12px;
+    padding: 24px;
+    width: 380px;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.4);
+  }
+  .schema-box.current {
+    border-color: #e74c3c;
+  }
+  .schema-box.target {
+    border-color: #2ecc71;
+  }
+  .schema-title {
+    font-size: 18px;
+    font-weight: 700;
+    margin-bottom: 16px;
+    padding-bottom: 12px;
+    border-bottom: 1px solid #444;
+  }
+  .schema-box.current .schema-title { color: #e74c3c; }
+  .schema-box.target .schema-title { color: #2ecc71; }
+  .field {
+    display: flex;
+    align-items: center;
+    padding: 8px 12px;
+    margin: 4px 0;
+    border-radius: 6px;
+    font-size: 14px;
+  }
+  .field.pk { background: rgba(52, 152, 219, 0.15); border-left: 3px solid #3498db; }
+  .field.data { background: rgba(241, 196, 15, 0.15); border-left: 3px solid #f1c40f; }
+  .field.state { background: rgba(155, 89, 182, 0.15); border-left: 3px solid #9b59b6; }
+  .field.audit { background: rgba(26, 188, 156, 0.15); border-left: 3px solid #1abc9c; }
+  .field.removed { background: rgba(231, 76, 60, 0.1); border-left: 3px solid #e74c3c; opacity: 0.6; text-decoration: line-through; }
+  .field.new { background: rgba(46, 204, 113, 0.15); border-left: 3px solid #2ecc71; }
+  .field-name { font-weight: 600; min-width: 160px; }
+  .field-type { color: #aaa; font-size: 12px; margin-left: 8px; }
+  .arrow-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding-top: 120px;
+  }
+  .arrow {
+    font-size: 40px;
+    color: #3498db;
+  }
+  .arrow-label {
+    color: #aaa;
+    font-size: 12px;
+    margin-top: 8px;
+    text-align: center;
+  }
+  .legend {
+    margin-top: 40px;
+    display: flex;
+    gap: 24px;
+    justify-content: center;
+    flex-wrap: wrap;
+  }
+  .legend-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 13px;
+  }
+  .legend-dot {
+    width: 14px;
+    height: 14px;
+    border-radius: 3px;
+  }
+</style>
+</head>
+<body>
+<h1>Issue #81 — Schema Comparison: Current vs Target</h1>
+<div class="container">
+  <div class="schema-box current">
+    <div class="schema-title">Current (Issue #76)</div>
+    <div class="field pk"><span class="field-name">email</span><span class="field-type">str (PK)</span></div>
+    <div class="field data"><span class="field-name">best_contact_email</span><span class="field-type">str</span></div>
+    <div class="field data"><span class="field-name">timestamp</span><span class="field-type">str</span></div>
+    <div class="field state"><span class="field-name">status</span><span class="field-type">str</span></div>
+    <div class="field data"><span class="field-name">application_data</span><span class="field-type">dict</span></div>
+    <div class="field audit"><span class="field-name">cleansing_log</span><span class="field-type">list</span></div>
+    <div class="field audit"><span class="field-name">cleansed_at</span><span class="field-type">str</span></div>
+  </div>
+
+  <div class="arrow-container">
+    <div class="arrow">→</div>
+    <div class="arrow-label">Migrate</div>
+  </div>
+
+  <div class="schema-box target">
+    <div class="schema-title">Target (Backlog PRD-2)</div>
+    <div class="field pk"><span class="field-name">email</span><span class="field-type">str (PK)</span></div>
+    <div class="field new"><span class="field-name">raw_payload_snapshot</span><span class="field-type">dict</span></div>
+    <div class="field new"><span class="field-name">cleansed_payload</span><span class="field-type">dict | null</span></div>
+    <div class="field new"><span class="field-name">updated_at</span><span class="field-type">str (ISO-8601)</span></div>
+    <div class="field removed"><span class="field-name">best_contact_email</span><span class="field-type">→ inside raw</span></div>
+    <div class="field removed"><span class="field-name">timestamp</span><span class="field-type">→ updated_at</span></div>
+    <div class="field removed"><span class="field-name">status</span><span class="field-type">→ implicit</span></div>
+    <div class="field removed"><span class="field-name">application_data</span><span class="field-type">→ split</span></div>
+    <div class="field removed"><span class="field-name">cleansing_log</span><span class="field-type">→ removed</span></div>
+    <div class="field removed"><span class="field-name">cleansed_at</span><span class="field-type">→ updated_at</span></div>
+  </div>
+</div>
+
+<div class="legend">
+  <div class="legend-item"><div class="legend-dot" style="background:#3498db"></div>Primary Key</div>
+  <div class="legend-item"><div class="legend-dot" style="background:#f1c40f"></div>Data Field</div>
+  <div class="legend-item"><div class="legend-dot" style="background:#9b59b6"></div>State Field</div>
+  <div class="legend-item"><div class="legend-dot" style="background:#1abc9c"></div>Audit Field</div>
+  <div class="legend-item"><div class="legend-dot" style="background:#2ecc71"></div>New Field</div>
+  <div class="legend-item"><div class="legend-dot" style="background:#e74c3c"></div>Removed Field</div>
+</div>
+</body>
+</html>
