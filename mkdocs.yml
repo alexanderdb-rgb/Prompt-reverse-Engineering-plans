@@ -11,4 +11,4 @@ nav:
 - Home: index.md
 - Plans:
   - "Issue #76 \u2013 Re-implement PRD-1 with email-primary schema": plans/issue-76-plan.md
-  - "Issue #81 \u2013 PRD-2 Re-implementation": plans/issue-81-plan.md
+  - "Issue #81 – PRD-3 Evaluation Engine": plans/issue-81-plan.md

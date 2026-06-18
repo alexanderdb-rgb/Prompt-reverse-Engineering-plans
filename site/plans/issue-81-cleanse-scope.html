@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<style>
+  body {
+    background: #1a1a1a;
+    color: #e0e0e0;
+    font-family: 'Segoe UI', system-ui, sans-serif;
+    padding: 40px;
+    margin: 0;
+  }
+  h1 {
+    text-align: center;
+    color: #ffffff;
+    font-size: 24px;
+    margin-bottom: 40px;
+  }
+  .container {
+    display: flex;
+    gap: 40px;
+    justify-content: center;
+    align-items: flex-start;
+  }
+  .record-box {
+    background: #252525;
+    border: 2px solid #444;
+    border-radius: 12px;
+    padding: 24px;
+    width: 340px;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.4);
+  }
+  .record-title {
+    font-size: 16px;
+    font-weight: 700;
+    margin-bottom: 16px;
+    padding-bottom: 12px;
+    border-bottom: 1px solid #444;
+    color: #3498db;
+  }
+  .field {
+    display: flex;
+    align-items: center;
+    padding: 8px 12px;
+    margin: 4px 0;
+    border-radius: 6px;
+    font-size: 13px;
+  }
+  .field.preserve {
+    background: rgba(46, 204, 113, 0.1);
+    border-left: 3px solid #2ecc71;
+  }
+  .field.mutate {
+    background: rgba(241, 196, 15, 0.15);
+    border-left: 3px solid #f1c40f;
+  }
+  .field.cleanse {
+    background: rgba(52, 152, 219, 0.15);
+    border-left: 3px solid #3498db;
+  }
+  .field-name { font-weight: 600; min-width: 140px; }
+  .field-action { color: #aaa; font-size: 11px; margin-left: 8px; }
+  .legend {
+    margin-top: 40px;
+    display: flex;
+    gap: 24px;
+    justify-content: center;
+  }
+  .legend-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 13px;
+  }
+  .legend-dot {
+    width: 14px;
+    height: 14px;
+    border-radius: 3px;
+  }
+  .arrow-note {
+    text-align: center;
+    color: #aaa;
+    font-size: 12px;
+    margin-top: 20px;
+  }
+</style>
+</head>
+<body>
+<h1>Cleanse Scope: What the Cleanse Worker Mutates</h1>
+<div class="container">
+  <div class="record-box">
+    <div class="record-title">Record Fields</div>
+
+    <div class="field preserve">
+      <span class="field-name">email</span>
+      <span class="field-action">PRESERVED</span>
+    </div>
+    <div class="field preserve">
+      <span class="field-name">best_contact_email</span>
+      <span class="field-action">PRESERVED</span>
+    </div>
+    <div class="field preserve">
+      <span class="field-name">timestamp</span>
+      <span class="field-action">PRESERVED</span>
+    </div>
+
+    <div class="field mutate">
+      <span class="field-name">status</span>
+      <span class="field-action">MUTATED (set to CLEANSED_PASSED or QUARANTINE_FAILED)</span>
+    </div>
+    <div class="field mutate">
+      <span class="field-name">cleansed_at</span>
+      <span class="field-action">MUTATED (timestamp set)</span>
+    </div>
+    <div class="field mutate">
+      <span class="field-name">cleansing_log</span>
+      <span class="field-action">MUTATED (entry appended)</span>
+    </div>
+
+    <div class="field cleanse">
+      <span class="field-name">application_data.*</span>
+      <span class="field-action">CLEANSED (recursive regex + Gemini)</span>
+    </div>
+  </div>
+</div>
+
+<div class="arrow-note">
+  The cleanse worker NEVER touches email, best_contact_email, or timestamp.<br>
+  These fields are set once by the ingest pipeline and remain immutable.
+</div>
+
+<div class="legend">
+  <div class="legend-item"><div class="legend-dot" style="background:#2ecc71"></div>Preserved (immutable)</div>
+  <div class="legend-item"><div class="legend-dot" style="background:#f1c40f"></div>Mutated (status tracking)</div>
+  <div class="legend-item"><div class="legend-dot" style="background:#3498db"></div>Cleansed (data hygiene)</div>
+</div>
+</body>
+</html>

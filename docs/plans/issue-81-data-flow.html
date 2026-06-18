@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+<style>
+  body { background: #1a1a1a; margin: 0; padding: 20px; min-height: 100vh; }
+</style>
+</head>
+<body>
+<div class="mermaid">
+sequenceDiagram
+    autonumber
+    participant CSV as applications.csv
+    participant IP as Ingest Pipeline
+    participant DB as Database.json
+    participant CP as Cleanse Pipeline
+    participant EP as Eval Pipeline
+    participant Gemini as Gemini API
+    participant Rubric as Rubric.md
+
+    CSV->>IP: Parse CSV rows
+    IP->>DB: Upsert records<br/>status = TO_BE_PROCESSED
+
+    DB->>CP: Load candidates<br/>(status = TO_BE_PROCESSED)
+    CP->>CP: Quarantine detection
+    alt Hostile pattern found
+        CP->>DB: status = QUARANTINE_FAILED
+    else Clean record
+        CP->>CP: Regex cleanse application_data
+        CP->>Gemini: Ambiguous anomaly fallback
+        Gemini-->>CP: Corrections
+        CP->>DB: status = CLEANSED_PASSED
+    end
+
+    DB->>EP: Load candidates<br/>(status = CLEANSED_PASSED)
+    EP->>Rubric: Load 6-dimension rubric
+    EP->>Gemini: Score record per dimension<br/>(prompt = Eval_Prompt + Rubric)
+    Gemini-->>EP: matrix_scores + score_reasoning
+    EP->>EP: Compute total_score (0-12)
+    EP->>EP: Compute recommendation band
+    EP->>EP: Build email_draft_payload<br/>recipient = best_contact_email
+    EP->>EP: Strip HTML from body (XSS protection)
+    EP->>DB: status = EVAL_COMPLETED<br/>+ evaluated_at + evaluation_log
+</div>
+<script>
+mermaid.initialize({ startOnLoad: true, theme: 'dark' });
+</script>
+</body>
+</html>

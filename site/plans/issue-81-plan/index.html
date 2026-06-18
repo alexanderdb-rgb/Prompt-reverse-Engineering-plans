@@ -18,7 +18,7 @@
     
     
       
-        <title>Issue #81 – PRD-2 Re-implementation - Implementation Plans</title>
+        <title>Issue #81 – PRD-3 Evaluation Engine - Implementation Plans</title>
       
     
     
@@ -77,7 +77,7 @@
     <div data-md-component="skip">
       
         
-        <a href="#issue-81-prd-2-re-implementation-align-data-model-with-backlog-specification" class="md-skip">
+        <a href="#issue-81-prd-3-evaluation-engine-applicant-feedback-pipeline" class="md-skip">
           Skip to content
         </a>
       
@@ -113,7 +113,7 @@
         <div class="md-header__topic" data-md-component="header-topic">
           <span class="md-ellipsis">
             
-              Issue #81 – PRD-2 Re-implementation
+              Issue #81 – PRD-3 Evaluation Engine
             
           </span>
         </div>
@@ -289,7 +289,7 @@
   <span class="md-ellipsis">
     
   
-    Issue #81 – PRD-2 Re-implementation
+    Issue #81 – PRD-3 Evaluation Engine
   
 
     
@@ -307,7 +307,7 @@
   <span class="md-ellipsis">
     
   
-    Issue #81 – PRD-2 Re-implementation
+    Issue #81 – PRD-3 Evaluation Engine
   
 
     
@@ -352,45 +352,6 @@
     </span>
   </a>
   
-    <nav class="md-nav" aria-label="Root Cause Analysis">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#current-state-post-issue-76" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Current State (Post-Issue #76)
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#target-state-backlog-prd-2" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Target State (Backlog PRD-2)
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#why-this-matters" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Why This Matters
-      
-    </span>
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
-  
 </li>
       
         <li class="md-nav__item">
@@ -406,10 +367,10 @@
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#high-level-approach" class="md-nav__link">
+  <a href="#email-draft-structure" class="md-nav__link">
     <span class="md-ellipsis">
       
-        High-Level Approach
+        Email Draft Structure
       
     </span>
   </a>
@@ -417,10 +378,10 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#architecture-changes" class="md-nav__link">
+  <a href="#xss-protection" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Architecture Changes
+        XSS Protection
       
     </span>
   </a>
@@ -463,6 +424,67 @@
     </span>
   </a>
   
+    <nav class="md-nav" aria-label="Implementation Steps">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#step-1-create-toolseval_utilspy" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Step 1: Create tools/eval_utils.py
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#step-2-create-eval_pipelinepy" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Step 2: Create eval_pipeline.py
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#step-3-update-ingest_pipelinepy" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Step 3: Update ingest_pipeline.py
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#step-4-write-tests" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Step 4: Write Tests
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#step-5-update-documentation" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Step 5: Update Documentation
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
 </li>
       
         <li class="md-nav__item">
@@ -478,10 +500,10 @@
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#unit-tests" class="md-nav__link">
+  <a href="#unit-tests-teststest_eval_pipelinepy" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Unit Tests
+        Unit Tests (tests/test_eval_pipeline.py)
       
     </span>
   </a>
@@ -489,10 +511,10 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#integration-tests" class="md-nav__link">
+  <a href="#integration-tests-testsadversarial_test_issue81py" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Integration Tests
+        Integration Tests (tests/adversarial_test_issue81.py)
       
     </span>
   </a>
@@ -539,10 +561,10 @@
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#schema-comparison-current-vs-target" class="md-nav__link">
+  <a href="#architecture-overview" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Schema Comparison: Current vs Target
+        Architecture Overview
       
     </span>
   </a>
@@ -550,10 +572,10 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#pipeline-flow-target-architecture" class="md-nav__link">
+  <a href="#data-flow" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Pipeline Flow (Target Architecture)
+        Data Flow
       
     </span>
   </a>
@@ -561,10 +583,10 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#data-lifecycle" class="md-nav__link">
+  <a href="#record-state-machine" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Data Lifecycle
+        Record State Machine
       
     </span>
   </a>
@@ -577,63 +599,35 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#appendix-schema-migration-specification" class="md-nav__link">
+  <a href="#appendix-rubric-dimensions-from-rubricmd" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Appendix: Schema Migration Specification
-      
-    </span>
-  </a>
-  
-    <nav class="md-nav" aria-label="Appendix: Schema Migration Specification">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#old-record-issue-76" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Old Record (Issue #76)
+        Appendix: Rubric Dimensions (from Rubric.md)
       
     </span>
   </a>
   
 </li>
-        
-          <li class="md-nav__item">
-  <a href="#migrated-record-issue-81" class="md-nav__link">
+      
+        <li class="md-nav__item">
+  <a href="#appendix-status-lifecycle" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Migrated Record (Issue #81)
+        Appendix: Status Lifecycle
       
     </span>
   </a>
   
 </li>
-        
-          <li class="md-nav__item">
-  <a href="#new-record-after-ingest-before-cleanse" class="md-nav__link">
+      
+        <li class="md-nav__item">
+  <a href="#appendix-data-model-for-evaluation-records" class="md-nav__link">
     <span class="md-ellipsis">
       
-        New Record After Ingest (Before Cleanse)
+        Appendix: Data Model for Evaluation Records
       
     </span>
   </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#new-record-after-cleanse" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        New Record After Cleanse
-      
-    </span>
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
   
 </li>
       
@@ -699,45 +693,6 @@
     </span>
   </a>
   
-    <nav class="md-nav" aria-label="Root Cause Analysis">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#current-state-post-issue-76" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Current State (Post-Issue #76)
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#target-state-backlog-prd-2" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Target State (Backlog PRD-2)
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#why-this-matters" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Why This Matters
-      
-    </span>
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
-  
 </li>
       
         <li class="md-nav__item">
@@ -753,10 +708,10 @@
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#high-level-approach" class="md-nav__link">
+  <a href="#email-draft-structure" class="md-nav__link">
     <span class="md-ellipsis">
       
-        High-Level Approach
+        Email Draft Structure
       
     </span>
   </a>
@@ -764,10 +719,10 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#architecture-changes" class="md-nav__link">
+  <a href="#xss-protection" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Architecture Changes
+        XSS Protection
       
     </span>
   </a>
@@ -810,6 +765,67 @@
     </span>
   </a>
   
+    <nav class="md-nav" aria-label="Implementation Steps">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#step-1-create-toolseval_utilspy" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Step 1: Create tools/eval_utils.py
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#step-2-create-eval_pipelinepy" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Step 2: Create eval_pipeline.py
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#step-3-update-ingest_pipelinepy" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Step 3: Update ingest_pipeline.py
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#step-4-write-tests" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Step 4: Write Tests
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#step-5-update-documentation" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Step 5: Update Documentation
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
 </li>
       
         <li class="md-nav__item">
@@ -825,10 +841,10 @@
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#unit-tests" class="md-nav__link">
+  <a href="#unit-tests-teststest_eval_pipelinepy" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Unit Tests
+        Unit Tests (tests/test_eval_pipeline.py)
       
     </span>
   </a>
@@ -836,10 +852,10 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#integration-tests" class="md-nav__link">
+  <a href="#integration-tests-testsadversarial_test_issue81py" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Integration Tests
+        Integration Tests (tests/adversarial_test_issue81.py)
       
     </span>
   </a>
@@ -886,10 +902,10 @@
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#schema-comparison-current-vs-target" class="md-nav__link">
+  <a href="#architecture-overview" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Schema Comparison: Current vs Target
+        Architecture Overview
       
     </span>
   </a>
@@ -897,10 +913,10 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#pipeline-flow-target-architecture" class="md-nav__link">
+  <a href="#data-flow" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Pipeline Flow (Target Architecture)
+        Data Flow
       
     </span>
   </a>
@@ -908,10 +924,10 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#data-lifecycle" class="md-nav__link">
+  <a href="#record-state-machine" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Data Lifecycle
+        Record State Machine
       
     </span>
   </a>
@@ -924,63 +940,35 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#appendix-schema-migration-specification" class="md-nav__link">
+  <a href="#appendix-rubric-dimensions-from-rubricmd" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Appendix: Schema Migration Specification
-      
-    </span>
-  </a>
-  
-    <nav class="md-nav" aria-label="Appendix: Schema Migration Specification">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#old-record-issue-76" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Old Record (Issue #76)
+        Appendix: Rubric Dimensions (from Rubric.md)
       
     </span>
   </a>
   
 </li>
-        
-          <li class="md-nav__item">
-  <a href="#migrated-record-issue-81" class="md-nav__link">
+      
+        <li class="md-nav__item">
+  <a href="#appendix-status-lifecycle" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Migrated Record (Issue #81)
+        Appendix: Status Lifecycle
       
     </span>
   </a>
   
 </li>
-        
-          <li class="md-nav__item">
-  <a href="#new-record-after-ingest-before-cleanse" class="md-nav__link">
+      
+        <li class="md-nav__item">
+  <a href="#appendix-data-model-for-evaluation-records" class="md-nav__link">
     <span class="md-ellipsis">
       
-        New Record After Ingest (Before Cleanse)
+        Appendix: Data Model for Evaluation Records
       
     </span>
   </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#new-record-after-cleanse" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        New Record After Cleanse
-      
-    </span>
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
   
 </li>
       
@@ -1001,113 +989,70 @@
 
 
 
-<h1 id="issue-81-prd-2-re-implementation-align-data-model-with-backlog-specification">Issue #81 – PRD-2 Re-implementation: Align Data Model with Backlog Specification</h1>
+<h1 id="issue-81-prd-3-evaluation-engine-applicant-feedback-pipeline">Issue #81: PRD-3 Evaluation Engine &amp; Applicant Feedback Pipeline</h1>
 <h2 id="summary">Summary</h2>
-<p>Re-implement the Data Persistence &amp; Cleansing Pipeline (<code>cleanse_pipeline.py</code>) and its integration with the ingestion layer (<code>ingest_pipeline.py</code>) to align with the backlog PRD-2 specification. The current implementation uses an <code>application_data</code> + <code>status</code> state-machine schema; the target specification requires a side-by-side <code>raw_payload_snapshot</code> / <code>cleansed_payload</code> architecture with <code>updated_at</code> tracking. This change restores the audit-lineage capability (pristine raw copy next to sanitized output) that was lost in the issue #76 schema migration.</p>
-<hr>
+<p>Implement an automated evaluation engine (<code>eval_pipeline.py</code>) that reads cleansed application JSON records (status <code>CLEANSED_PASSED</code>), scores them against the 6-dimension rubric defined in <code>Rubric.md</code>, generates structured scorecards with per-dimension justifications, compiles personalized draft feedback emails addressed to <code>best_contact_email</code>, and transitions records to <code>EVAL_COMPLETED</code>.</p>
 <h2 id="root-cause-analysis">Root Cause Analysis</h2>
-<h3 id="current-state-post-issue-76">Current State (Post-Issue #76)</h3>
-<p>The issue #76 implementation introduced an email-primary schema with these record fields:</p>
-<table>
-<thead>
-<tr>
-<th>Field</th>
-<th>Purpose</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td><code>email</code></td>
-<td>Primary key</td>
-</tr>
-<tr>
-<td><code>best_contact_email</code></td>
-<td>Secondary contact</td>
-</tr>
-<tr>
-<td><code>timestamp</code></td>
-<td>Ingestion timestamp</td>
-</tr>
-<tr>
-<td><code>status</code></td>
-<td>State machine (<code>TO_BE_PROCESSED</code> → <code>CLEANSED_PASSED</code> / <code>QUARANTINE_FAILED</code>)</td>
-</tr>
-<tr>
-<td><code>application_data</code></td>
-<td>All dynamic CSV fields nested here</td>
-</tr>
-<tr>
-<td><code>cleansing_log</code></td>
-<td>Audit trail array</td>
-</tr>
-<tr>
-<td><code>cleansed_at</code></td>
-<td>Last cleanse timestamp</td>
-</tr>
-</tbody>
-</table>
-<p>This design <strong>collapses</strong> raw and cleansed data into a single mutable <code>application_data</code> field. Once a record is processed, the original raw CSV values are lost unless reconstructed from external sources.</p>
-<h3 id="target-state-backlog-prd-2">Target State (Backlog PRD-2)</h3>
-<p>The backlog specification requires:</p>
-<table>
-<thead>
-<tr>
-<th>Field</th>
-<th>Type</th>
-<th>Purpose</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td><code>email</code></td>
-<td>str (PK)</td>
-<td>Primary key for upsert</td>
-</tr>
-<tr>
-<td><code>raw_payload_snapshot</code></td>
-<td>dict (Non-Nullable)</td>
-<td><strong>Pristine</strong> copy of the raw CSV row — never modified</td>
-</tr>
-<tr>
-<td><code>cleansed_payload</code></td>
-<td>dict (Nullable)</td>
-<td>Sanitized copy produced by the cleansing worker</td>
-</tr>
-<tr>
-<td><code>updated_at</code></td>
-<td>str (ISO-8601)</td>
-<td>Timestamp of last worker modification</td>
-</tr>
-</tbody>
-</table>
-<h3 id="why-this-matters">Why This Matters</h3>
-<ol>
-<li><strong>Audit Lineage:</strong> The completed PRD-2 explicitly lists "0.00% corruption rate through side-by-side preservation of pristine raw payloads and modified attributes" as a success metric. The current design violates this.</li>
-<li><strong>Reproducibility:</strong> If cleansing logic changes (new regex rules, updated Gemini prompts), engineers need the original raw data to re-run cleansing deterministically.</li>
-<li><strong>Quarantine Review:</strong> When records are quarantined, reviewers need to see both the raw input that triggered the quarantine and the attempted cleanse output.</li>
-<li><strong>Evaluation Integrity:</strong> PRD-3 (Evaluation Engine) expects to read from a clean <code>cleansed_payload</code> while having access to raw values for dispute resolution.</li>
-</ol>
-<hr>
+<p><strong>Current State:</strong> The Application Intake system has two operational pipelines:
+1. <strong>Ingest Pipeline</strong> (<code>ingest_pipeline.py</code>) — parses CSV, partitions fields, detects conflicts, upserts records with <code>status = TO_BE_PROCESSED</code>
+2. <strong>Cleanse Pipeline</strong> (<code>cleanse_pipeline.py</code>) — quarantine detection, regex cleansing, Gemini AI fallback, updates status to <code>CLEANSED_PASSED</code> or <code>QUARANTINE_FAILED</code></p>
+<p><strong>Gap:</strong> There is no downstream processing after cleansing. Records remain in <code>CLEANSED_PASSED</code> state indefinitely. The rubric (<code>Rubric.md</code>) exists but is not programmatically consumed. No scoring, no feedback generation, and no email draft compilation exists.</p>
+<p><strong>Desired State:</strong> A third pipeline (<code>eval_pipeline.py</code>) that closes the loop by:
+1. Loading records with <code>status == CLEANSED_PASSED</code>
+2. Scoring each record against the 6 rubric dimensions using the Gemini API
+3. Recording <code>matrix_scores</code> (0-2 per dimension) and <code>score_reasoning</code> (justification text)
+4. Computing an overall score (0-12) and recommendation band (Strong/Conditional/No-go)
+5. Generating an <code>email_draft_payload</code> dict with recipient=<code>best_contact_email</code>, subject, body (markdown), and <code>generated_at</code> timestamp
+6. Transitioning status to <code>EVAL_COMPLETED</code></p>
 <h2 id="proposed-solution">Proposed Solution</h2>
-<h3 id="high-level-approach">High-Level Approach</h3>
-<p>Refactor both <code>ingest_pipeline.py</code> and <code>cleanse_pipeline.py</code> to use the <code>raw_payload_snapshot</code> / <code>cleansed_payload</code> dual-payload model. Preserve the existing operational behaviors (delta filtering, conflict detection, quarantine, atomic saves) while changing the data shape.</p>
-<h3 id="architecture-changes">Architecture Changes</h3>
-<p><strong>Ingest Pipeline Changes:</strong>
-- Instead of partitioning CSV fields into fixed fields + <code>application_data</code>, store the <strong>entire raw CSV row</strong> (minus the email) into <code>raw_payload_snapshot</code>.
-- Set <code>cleansed_payload</code> to <code>null</code> on initial ingestion (the cleansing worker will populate it).
-- Drop <code>status</code> field — the presence/absence of <code>cleansed_payload</code> indicates processing state.
-- Drop <code>application_data</code> field entirely.
-- Use <code>updated_at</code> instead of <code>timestamp</code> (same semantics, clearer name).</p>
-<p><strong>Cleanse Pipeline Changes:</strong>
-- Read from <code>raw_payload_snapshot</code> (never mutate it).
-- Write cleansed output to <code>cleansed_payload</code>.
-- Apply the same three-layer defense: quarantine detection → regex cleanse → Gemini fallback.
-- On quarantine: set <code>cleansed_payload</code> to a quarantine marker or leave it <code>null</code> with a quarantine flag.
-- Drop <code>status</code>, <code>cleansing_log</code>, <code>cleansed_at</code> fields — these are replaced by <code>updated_at</code> + the presence of <code>cleansed_payload</code>.</p>
-<p><strong>Shared Utilities:</strong>
-- <code>cleanse_utils.py</code> remains largely unchanged (walk_dict, strip_control_chars, etc.).
-- Add a helper to migrate old-schema records on first read.</p>
-<hr>
+<p>Build a new <code>eval_pipeline.py</code> module following the same architectural patterns as the existing pipelines:</p>
+<table>
+<thead>
+<tr>
+<th>Pattern</th>
+<th>Existing</th>
+<th>New (Evaluation)</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Entry point</td>
+<td><code>run_pipeline()</code></td>
+<td><code>run_eval_pipeline()</code></td>
+</tr>
+<tr>
+<td>Candidate loading</td>
+<td><code>load_candidates()</code></td>
+<td><code>load_eval_candidates()</code></td>
+</tr>
+<tr>
+<td>Core engine</td>
+<td><code>regex_cleanse()</code> + <code>gemini_cleanse()</code></td>
+<td><code>evaluate_record()</code> + <code>build_email_draft()</code></td>
+</tr>
+<tr>
+<td>State update</td>
+<td><code>update_state()</code></td>
+<td><code>update_eval_state()</code></td>
+</tr>
+<tr>
+<td>Persistence</td>
+<td><code>save_database_atomic()</code></td>
+<td>Reuse existing</td>
+</tr>
+</tbody>
+</table>
+<p>The evaluation engine will use the existing <code>gemini_call()</code> from <code>tools/gemini_call.py</code> with a structured prompt built from <code>Eval_Prompt.md</code> + <code>Rubric.md</code> content. Each dimension will be scored individually to ensure granular feedback.</p>
+<h3 id="email-draft-structure">Email Draft Structure</h3>
+<pre><code class="language-python">email_draft_payload = {
+    "recipient": "&lt;best_contact_email&gt;",
+    "subject": "PCAIS Co-Funded POC Program — Application Feedback",
+    "body": "&lt;markdown feedback with scorecard&gt;",
+    "generated_at": "2024-06-20T12:00:00Z",
+}
+</code></pre>
+<h3 id="xss-protection">XSS Protection</h3>
+<p>All text injected into <code>email_draft_payload["body"]</code> will pass through an HTML stripping function to prevent downstream XSS in mailing services.</p>
 <h2 id="files-to-modify">Files to Modify</h2>
 <table>
 <thead>
@@ -1118,16 +1063,16 @@
 </thead>
 <tbody>
 <tr>
-<td><code>cleanse_pipeline.py</code></td>
-<td>Refactor to read <code>raw_payload_snapshot</code> and write <code>cleansed_payload</code>. Remove <code>status</code>, <code>cleansing_log</code>, <code>cleansed_at</code>. Update <code>load_candidates</code> logic. Update <code>update_state</code>.</td>
+<td><code>README.md</code></td>
+<td>Add eval pipeline to project structure, usage section, and feature list</td>
 </tr>
 <tr>
 <td><code>ingest_pipeline.py</code></td>
-<td>Replace <code>_partition_fields</code> with <code>_build_raw_snapshot</code>. Store full CSV row in <code>raw_payload_snapshot</code>. Set <code>cleansed_payload = null</code>. Use <code>updated_at</code> instead of <code>timestamp</code>. Remove <code>status</code> assignment.</td>
+<td>Add <code>EVAL_COMPLETED</code> to allowed status transitions (if re-ingest should reset from EVAL_COMPLETED to TO_BE_PROCESSED on newer data)</td>
 </tr>
 <tr>
-<td><code>tools/cleanse_utils.py</code></td>
-<td>Add <code>migrate_old_schema(record)</code> helper for backward compatibility.</td>
+<td><code>cleanse_pipeline.py</code></td>
+<td>Ensure <code>CLEANSED_PASSED</code> records can be re-cleansed if re-ingested (already supported via <code>load_candidates(include_recleaned=True)</code>)</td>
 </tr>
 </tbody>
 </table>
@@ -1141,92 +1086,86 @@
 </thead>
 <tbody>
 <tr>
-<td><code>tests/test_schema_migration.py</code></td>
-<td>Unit tests for old-schema → new-schema migration helper.</td>
+<td><code>eval_pipeline.py</code></td>
+<td>Main evaluation pipeline module — loads candidates, scores via Gemini, builds email drafts, updates state</td>
+</tr>
+<tr>
+<td><code>tools/eval_utils.py</code></td>
+<td>Shared utilities: HTML stripper, rubric JSON loader, scorecard formatter, recommendation band calculator</td>
+</tr>
+<tr>
+<td><code>tests/test_eval_pipeline.py</code></td>
+<td>pytest tests: candidate loading, scoring integration, email draft structure, state transitions, XSS stripping</td>
+</tr>
+<tr>
+<td><code>tests/adversarial_test_issue81.py</code></td>
+<td>Adversarial tests: full lifecycle ingest→cleanse→eval, empty application_data, quarantine isolation, best_contact_email routing</td>
 </tr>
 </tbody>
 </table>
 <h2 id="implementation-steps">Implementation Steps</h2>
+<h3 id="step-1-create-toolseval_utilspy">Step 1: Create <code>tools/eval_utils.py</code></h3>
 <ol>
-<li><strong>Update <code>cleanse_utils.py</code></strong></li>
-<li>Add <code>migrate_old_schema(record)</code> that converts issue-76 schema records to the new format:<ul>
-<li>Moves <code>application_data</code> → <code>raw_payload_snapshot</code></li>
-<li>Initializes <code>cleansed_payload = null</code></li>
-<li>Copies <code>timestamp</code> → <code>updated_at</code></li>
-<li>Removes <code>status</code>, <code>cleansing_log</code>, <code>cleansed_at</code>, <code>best_contact_email</code> (if not in raw data)</li>
-</ul>
-</li>
-<li>
-<p>Add <code>is_new_schema(record)</code> helper.</p>
-</li>
-<li>
-<p><strong>Update <code>ingest_pipeline.py</code></strong></p>
-</li>
-<li>Replace <code>_partition_fields(record)</code> with <code>_build_raw_snapshot(record)</code>:<ul>
-<li>Returns <code>{"email": email, "raw_payload_snapshot": {all non-email CSV fields}, "cleansed_payload": null, "updated_at": record["timestamp"]}</code></li>
-</ul>
-</li>
-<li>Remove <code>status = "CLEANSED_PASSED"</code> from upsert — the ingest pipeline no longer marks records as cleansed.</li>
-<li>Update <code>upsert_records</code> to use <code>updated_at</code> instead of <code>timestamp</code>.</li>
-<li>Update conflict detection to compare <code>raw_payload_snapshot</code> instead of <code>application_data</code>.</li>
-<li>
-<p>Call <code>migrate_old_schema</code> on database records at load time if <code>raw_payload_snapshot</code> is absent.</p>
-</li>
-<li>
-<p><strong>Update <code>cleanse_pipeline.py</code></strong></p>
-</li>
-<li>Change <code>load_candidates</code> to return records where <code>cleansed_payload is None</code> (unprocessed) or where <code>updated_at</code> is older than a threshold (re-cleansing).</li>
-<li>Change <code>regex_cleanse</code> to read from <code>record["raw_payload_snapshot"]</code> and produce <code>cleansed_payload</code>.</li>
-<li>Change <code>detect_quarantine_signals</code> to scan <code>raw_payload_snapshot</code>.</li>
-<li>Remove <code>update_state</code> function — replace with a lightweight <code>touch_updated_at(record)</code>.</li>
-<li>Remove <code>log_quarantine</code> dependency on <code>cleansing_log</code>.</li>
-<li>
-<p>Update <code>run_cleanse_pipeline</code> orchestrator to write <code>cleansed_payload</code> instead of mutating <code>application_data</code>.</p>
-</li>
-<li>
-<p><strong>Write tests</strong></p>
-</li>
-<li><code>test_schema_migration.py</code>: Verify old records with <code>application_data</code> migrate correctly.</li>
-<li>Update <code>test_ingest_pipeline.py</code>: Assert new records have <code>raw_payload_snapshot</code> and <code>cleansed_payload = null</code>.</li>
-<li>
-<p>Update <code>test_cleanse_pipeline.py</code>: Assert cleansed output goes to <code>cleansed_payload</code>, raw remains untouched.</p>
-</li>
-<li>
-<p><strong>Run adversarial tests</strong></p>
-</li>
-<li>
-<p>Execute <code>adversarial_test_issue76.py</code> equivalents to verify no regressions in quarantine, regex, and Gemini behaviors.</p>
-</li>
-<li>
-<p><strong>Documentation</strong></p>
-</li>
-<li>Update module docstrings to reflect the new schema.</li>
-<li>Update PRD-2 backlog → completed.</li>
+<li><code>load_rubric(path)</code> — parse <code>Rubric.md</code> into structured dimension dicts (or use embedded JSON rubric)</li>
+<li><code>strip_html(text)</code> — regex-based HTML tag stripping for XSS prevention</li>
+<li><code>compute_recommendation_band(total_score: int) -&gt; str</code> — map 0-12 to Strong/Conditional/No-go</li>
+<li><code>format_scorecard(matrix_scores, score_reasoning, total_score, band) -&gt; str</code> — markdown formatter</li>
+<li><code>build_eval_prompt(record, rubric) -&gt; str</code> — construct Gemini prompt from record + rubric</li>
 </ol>
-<hr>
+<h3 id="step-2-create-eval_pipelinepy">Step 2: Create <code>eval_pipeline.py</code></h3>
+<ol>
+<li><code>load_eval_candidates(db_path)</code> — query <code>Database.json</code> for <code>status == CLEANSED_PASSED</code></li>
+<li><code>evaluate_record(record, rubric)</code> — call Gemini via <code>gemini_call()</code> with structured prompt, parse 6 dimension scores + reasoning</li>
+<li><code>build_email_draft(record, matrix_scores, score_reasoning, total_score, band)</code> — construct <code>email_draft_payload</code> dict</li>
+<li><code>update_eval_state(record)</code> — set <code>status = EVAL_COMPLETED</code>, add <code>evaluated_at</code> timestamp, append to <code>evaluation_log</code></li>
+<li><code>run_eval_pipeline(db_path, rubric_path)</code> — orchestrator: load candidates → evaluate → build drafts → update states → save atomically</li>
+</ol>
+<h3 id="step-3-update-ingest_pipelinepy">Step 3: Update <code>ingest_pipeline.py</code></h3>
+<ol>
+<li>In <code>upsert_records()</code>: when updating an existing record with newer data, if current status is <code>EVAL_COMPLETED</code>, reset to <code>TO_BE_PROCESSED</code> so it re-enters the full pipeline</li>
+</ol>
+<h3 id="step-4-write-tests">Step 4: Write Tests</h3>
+<ol>
+<li><code>tests/test_eval_pipeline.py</code> — unit tests for each function</li>
+<li><code>tests/adversarial_test_issue81.py</code> — adversarial lifecycle tests (already exists, extend with eval phase)</li>
+</ol>
+<h3 id="step-5-update-documentation">Step 5: Update Documentation</h3>
+<ol>
+<li><code>README.md</code> — add eval pipeline to project structure and usage</li>
+<li>Run <code>pytest tests/ -v</code> to verify all tests pass</li>
+</ol>
 <h2 id="test-strategy">Test Strategy</h2>
-<h3 id="unit-tests">Unit Tests</h3>
+<h3 id="unit-tests-teststest_eval_pipelinepy">Unit Tests (<code>tests/test_eval_pipeline.py</code>)</h3>
 <ul>
-<li><code>test_migrate_old_schema</code> — verifies all old fields map correctly, new fields are initialized.</li>
-<li><code>test_build_raw_snapshot</code> — verifies CSV rows become <code>raw_payload_snapshot</code> with email extracted.</li>
-<li><code>test_regex_cleanse_reads_raw_writes_cleansed</code> — verifies the read/write boundary.</li>
-<li><code>test_raw_payload_immutable</code> — asserts that after cleansing, <code>raw_payload_snapshot</code> is unchanged.</li>
+<li><code>test_load_eval_candidates_only_cleansed_passed</code> — returns only <code>CLEANSED_PASSED</code> records</li>
+<li><code>test_load_eval_candidates_empty_database</code> — empty DB returns []</li>
+<li><code>test_load_eval_candidates_mixed_status</code> — ignores <code>TO_BE_PROCESSED</code>, <code>QUARANTINE_FAILED</code>, <code>EVAL_COMPLETED</code></li>
+<li><code>test_evaluate_record_returns_scores</code> — mock Gemini response, verify 6 dimension scores</li>
+<li><code>test_evaluate_record_returns_reasoning</code> — verify justification text per dimension</li>
+<li><code>test_compute_recommendation_band</code> — test all three bands (0-6, 7-9, 10-12)</li>
+<li><code>test_build_email_draft_structure</code> — verify <code>recipient</code>, <code>subject</code>, <code>body</code>, <code>generated_at</code> keys</li>
+<li><code>test_build_email_draft_uses_best_contact_email</code> — 100% routing accuracy</li>
+<li><code>test_email_draft_body_contains_scorecard</code> — markdown table with scores</li>
+<li><code>test_strip_html_removes_tags</code> — XSS protection</li>
+<li><code>test_update_eval_state</code> — status transition, timestamp, log entry</li>
 </ul>
-<h3 id="integration-tests">Integration Tests</h3>
+<h3 id="integration-tests-testsadversarial_test_issue81py">Integration Tests (<code>tests/adversarial_test_issue81.py</code>)</h3>
 <ul>
-<li>Ingest a CSV → verify database records have <code>raw_payload_snapshot</code> and <code>null</code> <code>cleansed_payload</code>.</li>
-<li>Run cleanse pipeline → verify <code>cleansed_payload</code> is populated and <code>raw_payload_snapshot</code> is identical to pre-cleanse.</li>
-<li>Re-cleanse a record → verify <code>updated_at</code> changes but <code>raw_payload_snapshot</code> remains constant.</li>
+<li><code>test_full_lifecycle_ingest_cleanse_eval</code> — end-to-end: CSV → ingest → cleanse → eval → verify <code>EVAL_COMPLETED</code></li>
+<li><code>test_eval_leaves_top_level_intact</code> — email, best_contact_email, timestamp unchanged after eval</li>
+<li><code>test_eval_preserves_quarantine_records</code> — <code>QUARANTINE_FAILED</code> records never enter eval</li>
+<li><code>test_reingest_resets_eval_completed</code> — newer CSV data resets <code>EVAL_COMPLETED</code> → <code>TO_BE_PROCESSED</code></li>
+<li><code>test_empty_application_data_eval</code> — record with empty <code>application_data</code> still evaluates (scores 0 with generic reasoning)</li>
+<li><code>test_eval_idempotent</code> — running eval twice on same record does not duplicate email drafts in log</li>
 </ul>
 <h3 id="edge-cases">Edge Cases</h3>
 <ul>
-<li><strong>Old database with mixed schemas:</strong> Some records have <code>application_data</code>, others already have <code>raw_payload_snapshot</code>. The migration helper must handle both transparently.</li>
-<li><strong>Empty CSV fields:</strong> These should appear as empty strings in <code>raw_payload_snapshot</code>, not be omitted.</li>
-<li><strong>Unicode/emoji in raw data:</strong> Must survive untouched in <code>raw_payload_snapshot</code> and be NFC-normalized in <code>cleansed_payload</code>.</li>
-<li><strong>Quarantine path:</strong> Quarantined records should have <code>cleansed_payload = null</code> (or a quarantine marker) and an intact <code>raw_payload_snapshot</code>.</li>
-<li><strong>Gemini corrections:</strong> Corrections should be applied to <code>cleansed_payload</code>, never to <code>raw_payload_snapshot</code>.</li>
+<li>Record with <code>best_contact_email == None</code> — skip evaluation, log issue</li>
+<li>Gemini API failure — retry 3x, then skip record and log error</li>
+<li>Very large <code>application_data</code> (&gt; 1MB text) — skip Gemini call, log warning</li>
+<li>Malformed rubric file — fail fast with descriptive error</li>
+<li>HTML in application data — stripped in email draft body but preserved in raw record</li>
 </ul>
-<hr>
 <h2 id="risks-mitigations">Risks &amp; Mitigations</h2>
 <table>
 <thead>
@@ -1237,104 +1176,167 @@
 </thead>
 <tbody>
 <tr>
-<td><strong>Breaking existing databases</strong> (records use old schema)</td>
-<td>Implement <code>migrate_old_schema</code> helper; call it transparently on <code>load_database</code>. Write a one-time migration script and test it.</td>
+<td><strong>Gemini API latency &gt; 3s per record</strong></td>
+<td>Implement concurrent evaluation with <code>asyncio</code> or <code>ThreadPoolExecutor</code> (max 10 workers). Cache Gemini responses keyed by SHA-256 of record + rubric hash.</td>
 </tr>
 <tr>
-<td><strong>Tests from issue #76 break</strong></td>
-<td>The adversarial test file references <code>application_data</code>. Update it or create <code>adversarial_test_issue81.py</code> with the new schema assertions.</td>
+<td><strong>Gemini API costs scale with volume</strong></td>
+<td>Response cache prevents duplicate evaluations. Batch dimension scoring in a single prompt (all 6 dimensions at once).</td>
 </tr>
 <tr>
-<td><strong>Data loss during migration</strong></td>
-<td>The migration copies <code>application_data</code> → <code>raw_payload_snapshot</code>; no destructive moves. The old fields are removed only after copying.</td>
+<td><strong>Inconsistent scoring between runs</strong></td>
+<td>Use temperature=0.0 for deterministic output. Parse structured output (JSON) instead of free text.</td>
 </tr>
 <tr>
-<td><strong>Performance regression</strong></td>
-<td>The new schema stores two copies of data (raw + cleansed). For 500 records/minute throughput target, this is negligible (dict references are cheap; only string values are duplicated).</td>
+<td><strong>XSS in email draft body</strong></td>
+<td>Strip all HTML tags via <code>strip_html()</code> before storing in <code>email_draft_payload</code>.</td>
 </tr>
 <tr>
-<td><strong>Quarantine records lose state</strong></td>
-<td>Quarantine state is now implicit (<code>cleansed_payload is None</code> + presence in <code>cleaningissues.md</code>). Document this behavior.</td>
+<td><strong>Memory usage &gt; 512MB</strong></td>
+<td>Process records in streaming fashion (one at a time). Don't load entire database into memory for candidate filtering.</td>
+</tr>
+<tr>
+<td><strong>best_contact_email routing errors</strong></td>
+<td>Explicit assertion in tests. Validate email format before storing draft.</td>
+</tr>
+<tr>
+<td><strong>Rubric changes break parsing</strong></td>
+<td>Embed rubric as versioned JSON file instead of parsing Markdown. Version lock the rubric schema.</td>
 </tr>
 </tbody>
 </table>
-<hr>
 <h2 id="diagrams">Diagrams</h2>
-<h3 id="schema-comparison-current-vs-target">Schema Comparison: Current vs Target</h3>
-<p><a class="glightbox" data-type="image" data-width="auto" data-height="auto" href="../issue-81-schema-comparison.png" data-desc-position="bottom"><img alt="Schema Comparison" src="../issue-81-schema-comparison.png"></a></p>
-<h3 id="pipeline-flow-target-architecture">Pipeline Flow (Target Architecture)</h3>
-<p><a class="glightbox" data-type="image" data-width="auto" data-height="auto" href="../issue-81-pipeline-flow.png" data-desc-position="bottom"><img alt="Pipeline Flow" src="../issue-81-pipeline-flow.png"></a></p>
-<h3 id="data-lifecycle">Data Lifecycle</h3>
-<p><a class="glightbox" data-type="image" data-width="auto" data-height="auto" href="../issue-81-data-lifecycle.png" data-desc-position="bottom"><img alt="Data Lifecycle" src="../issue-81-data-lifecycle.png"></a></p>
+<h3 id="architecture-overview">Architecture Overview</h3>
+<p><a class="glightbox" data-type="image" data-width="auto" data-height="auto" href="../issue-81-architecture.png" data-desc-position="bottom"><img alt="Architecture Diagram" src="../issue-81-architecture.png"></a></p>
+<h3 id="data-flow">Data Flow</h3>
+<p><a class="glightbox" data-type="image" data-width="auto" data-height="auto" href="../issue-81-data-flow.png" data-desc-position="bottom"><img alt="Data Flow Diagram" src="../issue-81-data-flow.png"></a></p>
+<h3 id="record-state-machine">Record State Machine</h3>
+<p><a class="glightbox" data-type="image" data-width="auto" data-height="auto" href="../issue-81-state-machine.png" data-desc-position="bottom"><img alt="State Machine Diagram" src="../issue-81-state-machine.png"></a></p>
 <hr>
-<h2 id="appendix-schema-migration-specification">Appendix: Schema Migration Specification</h2>
-<h3 id="old-record-issue-76">Old Record (Issue #76)</h3>
-<pre><code class="language-json">{
-  "email": "alice@startup.io",
-  "best_contact_email": "alice@startup.io",
+<h2 id="appendix-rubric-dimensions-from-rubricmd">Appendix: Rubric Dimensions (from <code>Rubric.md</code>)</h2>
+<table>
+<thead>
+<tr>
+<th>#</th>
+<th>Dimension</th>
+<th>Score Range</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1</td>
+<td>Venture Description</td>
+<td>0–2</td>
+</tr>
+<tr>
+<td>2</td>
+<td>Value Chain Use Case</td>
+<td>0–2</td>
+</tr>
+<tr>
+<td>3</td>
+<td>AI Journey Self-Assessment</td>
+<td>0–2</td>
+</tr>
+<tr>
+<td>4</td>
+<td>Accelerator &amp; Industry Support</td>
+<td>0–2</td>
+</tr>
+<tr>
+<td>5</td>
+<td>Team Capabilities &amp; Resourcing</td>
+<td>0–2</td>
+</tr>
+<tr>
+<td>6</td>
+<td>Venture Funding</td>
+<td>0–2</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Overall Score:</strong> Sum of dimensions (max 12)</p>
+<table>
+<thead>
+<tr>
+<th>Score</th>
+<th>Band</th>
+<th>Action</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>10–12</td>
+<td>Strong</td>
+<td>Recommend for program</td>
+</tr>
+<tr>
+<td>7–9</td>
+<td>Conditional</td>
+<td>Recommend with required improvements</td>
+</tr>
+<tr>
+<td>≤6</td>
+<td>No-go</td>
+<td>Decline with feedback</td>
+</tr>
+</tbody>
+</table>
+<h2 id="appendix-status-lifecycle">Appendix: Status Lifecycle</h2>
+<pre><code>applications.csv
+     │
+     ▼
+┌─────────────────┐
+│  TO_BE_PROCESSED │ ←── Ingest Pipeline (new / updated records)
+└────────┬────────┘
+         │
+         ▼
+┌─────────────────┐
+│ CLEANSED_PASSED  │ ←── Cleanse Pipeline (quarantine → regex → Gemini)
+└────────┬────────┘
+         │
+         ▼
+┌─────────────────┐
+│ EVAL_COMPLETED   │ ←── Evaluation Pipeline (rubric scoring + email draft)
+└─────────────────┘
+</code></pre>
+<h2 id="appendix-data-model-for-evaluation-records">Appendix: Data Model for Evaluation Records</h2>
+<pre><code class="language-python">{
+  "email": "primary@example.com",           # Primary key
+  "best_contact_email": "contact@example.com",  # Email draft recipient
+  "status": "EVAL_COMPLETED",
   "timestamp": "2024-06-01T12:00:00Z",
-  "status": "CLEANSED_PASSED",
-  "application_data": {
-    "company_name": "Alice AI",
-    "industry": "SaaS"
+  "cleansed_at": "2024-06-01T12:05:00Z",
+  "evaluated_at": "2024-06-01T12:10:00Z",
+  "application_data": { ... },
+  "matrix_scores": {
+    "venture_description": 2,
+    "value_chain_use_case": 1,
+    "ai_journey_self_assessment": 2,
+    "accelerator_industry_support": 1,
+    "team_capabilities_resourcing": 2,
+    "venture_funding": 0,
   },
-  "cleansing_log": [
+  "score_reasoning": {
+    "venture_description": "Compelling, evidenced venture...",
+    "value_chain_use_case": "Reasonable use case with some value-chain linkage...",
+    # ... etc
+  },
+  "email_draft_payload": {
+    "recipient": "contact@example.com",
+    "subject": "PCAIS Co-Funded POC Program — Application Feedback",
+    "body": "# Application Feedback\n\n## Scorecard\n...",
+    "generated_at": "2024-06-01T12:10:00Z",
+  },
+  "cleansing_log": [...],
+  "evaluation_log": [
     {
-      "action": "CLEANSED_PASSED",
-      "timestamp": "2024-06-01T12:00:00Z",
-      "reason": "Regex/Gemini cleanse completed"
+      "action": "EVAL_COMPLETED",
+      "timestamp": "2024-06-01T12:10:00Z",
+      "total_score": 8,
+      "band": "Conditional",
     }
   ],
-  "cleansed_at": "2024-06-01T12:00:00Z"
-}
-</code></pre>
-<h3 id="migrated-record-issue-81">Migrated Record (Issue #81)</h3>
-<pre><code class="language-json">{
-  "email": "alice@startup.io",
-  "raw_payload_snapshot": {
-    "best_contact_email": "alice@startup.io",
-    "timestamp": "2024-06-01T12:00:00Z",
-    "company_name": "Alice AI",
-    "industry": "SaaS"
-  },
-  "cleansed_payload": {
-    "best_contact_email": "alice@startup.io",
-    "timestamp": "2024-06-01T12:00:00Z",
-    "company_name": "Alice AI",
-    "industry": "SaaS"
-  },
-  "updated_at": "2024-06-01T12:00:00Z"
-}
-</code></pre>
-<h3 id="new-record-after-ingest-before-cleanse">New Record After Ingest (Before Cleanse)</h3>
-<pre><code class="language-json">{
-  "email": "bob@startup.io",
-  "raw_payload_snapshot": {
-    "best_contact_email": "bob@startup.io",
-    "timestamp": "2024-06-15T09:30:00Z",
-    "company_name": "Bob's   Bots",
-    "industry": "Robotics"
-  },
-  "cleansed_payload": null,
-  "updated_at": "2024-06-15T09:30:00Z"
-}
-</code></pre>
-<h3 id="new-record-after-cleanse">New Record After Cleanse</h3>
-<pre><code class="language-json">{
-  "email": "bob@startup.io",
-  "raw_payload_snapshot": {
-    "best_contact_email": "bob@startup.io",
-    "timestamp": "2024-06-15T09:30:00Z",
-    "company_name": "Bob's   Bots",
-    "industry": "Robotics"
-  },
-  "cleansed_payload": {
-    "best_contact_email": "bob@startup.io",
-    "timestamp": "2024-06-15T09:30:00Z",
-    "company_name": "Bob's Bots",
-    "industry": "Robotics"
-  },
-  "updated_at": "2024-06-15T09:31:00Z"
 }
 </code></pre>
 

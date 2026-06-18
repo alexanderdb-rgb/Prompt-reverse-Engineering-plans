@@ -1,265 +1,234 @@
-# Issue #81 – PRD-2 Re-implementation: Fix Status Lifecycle & Cleanse Scope
+# Issue #81: PRD-3 Evaluation Engine & Applicant Feedback Pipeline
 
 ## Summary
 
-Fix the ingest → cleanse pipeline integration so that records enter the system as `TO_BE_PROCESSED`, the cleanse pipeline exclusively cleanses fields nested inside `application_data`, and only the `status` and `cleansed_at` top-level fields are mutated by the cleanse worker. The current `ingest_pipeline.py` incorrectly marks new records as `CLEANSED_PASSED`, bypassing the cleanse step entirely.
-
----
+Implement an automated evaluation engine (`eval_pipeline.py`) that reads cleansed application JSON records (status `CLEANSED_PASSED`), scores them against the 6-dimension rubric defined in `Rubric.md`, generates structured scorecards with per-dimension justifications, compiles personalized draft feedback emails addressed to `best_contact_email`, and transitions records to `EVAL_COMPLETED`.
 
 ## Root Cause Analysis
 
-### Current Behavior (Bug)
+**Current State:** The Application Intake system has two operational pipelines:
+1. **Ingest Pipeline** (`ingest_pipeline.py`) — parses CSV, partitions fields, detects conflicts, upserts records with `status = TO_BE_PROCESSED`
+2. **Cleanse Pipeline** (`cleanse_pipeline.py`) — quarantine detection, regex cleansing, Gemini AI fallback, updates status to `CLEANSED_PASSED` or `QUARANTINE_FAILED`
 
-In `ingest_pipeline.py`, the `upsert_records()` function assigns `status = "CLEANSED_PASSED"` to **all** new records:
+**Gap:** There is no downstream processing after cleansing. Records remain in `CLEANSED_PASSED` state indefinitely. The rubric (`Rubric.md`) exists but is not programmatically consumed. No scoring, no feedback generation, and no email draft compilation exists.
 
-```python
-# ingest_pipeline.py: line 398
-new_record = {
-    "email": email,
-    "timestamp": incoming_ts,
-    "status": "CLEANSED_PASSED",  # ❌ Should be "TO_BE_PROCESSED"
-    "application_data": app_data,
-}
-```
-
-This means:
-- Records never enter the `TO_BE_PROCESSED` state.
-- `cleanse_pipeline.py` finds no `TO_BE_PROCESSED` candidates on first run.
-- Data is ingested "clean" by assertion rather than by execution.
-- The quarantine + regex + Gemini three-layer defense is skipped for all new data.
-
-### Desired Behavior (Backlog PRD-2)
-
-| Stage | Status | Meaning |
-|-------|--------|---------|
-| After Ingest | `TO_BE_PROCESSED` | Record is raw; awaiting cleanse |
-| After Cleanse | `CLEANSED_PASSED` | Record has been through quarantine → regex → Gemini |
-| After Quarantine | `QUARANTINE_FAILED` | Hostile signals detected; needs manual review |
-
-**Cleanse scope rules:**
-- **Cleanse:** All fields inside `application_data` (recursive)
-- **Preserve:** `email`, `best_contact_email`, `timestamp` at top level
-- **Mutate by cleanse worker only:** `status`, `cleansed_at`, `cleansing_log`
-
----
+**Desired State:** A third pipeline (`eval_pipeline.py`) that closes the loop by:
+1. Loading records with `status == CLEANSED_PASSED`
+2. Scoring each record against the 6 rubric dimensions using the Gemini API
+3. Recording `matrix_scores` (0-2 per dimension) and `score_reasoning` (justification text)
+4. Computing an overall score (0-12) and recommendation band (Strong/Conditional/No-go)
+5. Generating an `email_draft_payload` dict with recipient=`best_contact_email`, subject, body (markdown), and `generated_at` timestamp
+6. Transitioning status to `EVAL_COMPLETED`
 
 ## Proposed Solution
 
-### Fix 1: Ingest Pipeline — Set `TO_BE_PROCESSED` on New/Upsert Records
+Build a new `eval_pipeline.py` module following the same architectural patterns as the existing pipelines:
 
-When a record is newly inserted **or** when an existing record's `application_data` is updated with newer timestamp data, reset its `status` to `TO_BE_PROCESSED` so it re-enters the cleanse queue.
+| Pattern | Existing | New (Evaluation) |
+|---------|----------|------------------|
+| Entry point | `run_pipeline()` | `run_eval_pipeline()` |
+| Candidate loading | `load_candidates()` | `load_eval_candidates()` |
+| Core engine | `regex_cleanse()` + `gemini_cleanse()` | `evaluate_record()` + `build_email_draft()` |
+| State update | `update_state()` | `update_eval_state()` |
+| Persistence | `save_database_atomic()` | Reuse existing |
 
-**Before (bug):**
+The evaluation engine will use the existing `gemini_call()` from `tools/gemini_call.py` with a structured prompt built from `Eval_Prompt.md` + `Rubric.md` content. Each dimension will be scored individually to ensure granular feedback.
+
+### Email Draft Structure
+
 ```python
-new_record["status"] = "CLEANSED_PASSED"
+email_draft_payload = {
+    "recipient": "<best_contact_email>",
+    "subject": "PCAIS Co-Funded POC Program — Application Feedback",
+    "body": "<markdown feedback with scorecard>",
+    "generated_at": "2024-06-20T12:00:00Z",
+}
 ```
 
-**After (fix):**
-```python
-new_record["status"] = "TO_BE_PROCESSED"
-```
+### XSS Protection
 
-Similarly, when an existing record's `application_data` is overwritten by newer data, reset `status` to `TO_BE_PROCESSED`.
-
-### Fix 2: Cleanse Pipeline — Confirm `TO_BE_PROCESSED`-Only Filtering
-
-Verify that `load_candidates()` and the orchestrator only operate on records where `status == "TO_BE_PROCESSED"`. Remove the fallback that also processes `CLEANSED_PASSED` records unless explicitly requested for re-cleansing.
-
-### Fix 3: Cleanse Scope — Preserve Top-Level Fields
-
-The existing `regex_cleanse()` already limits mutation to `application_data` (verified in current code). Add an explicit guarantee: if a quarantined or cleansed record has its top-level `email`, `best_contact_email`, or `timestamp` mutated, the test suite fails.
-
-### Fix 4: Status Lifecycle Test Suite
-
-Create an adversarial test that walks the full lifecycle:
-1. Ingest CSV → assert `status == "TO_BE_PROCESSED"`
-2. Run cleanse → assert `status == "CLEANSED_PASSED"` and `cleansed_at` is set
-3. Ingest newer CSV for same email → assert `status` resets to `"TO_BE_PROCESSED"`
-4. Run cleanse again → assert `status == "CLEANSED_PASSED"`
-
----
+All text injected into `email_draft_payload["body"]` will pass through an HTML stripping function to prevent downstream XSS in mailing services.
 
 ## Files to Modify
 
 | File | Change |
 |------|--------|
-| `ingest_pipeline.py` | In `upsert_records()`, set `status = "TO_BE_PROCESSED"` for new records. When updating existing records with newer data, also reset `status = "TO_BE_PROCESSED"`. Remove `CLEANSED_PASSED` assignment. |
-| `cleanse_pipeline.py` | In `run_cleanse_pipeline()`, remove the `CLEANSED_PASSED` fallback from candidate loading unless explicitly configured for re-cleansing. Confirm `load_candidates()` returns only `TO_BE_PROCESSED` by default. |
-| `tests/test_ingest_pipeline.py` | Add test asserting new records have `status == "TO_BE_PROCESSED"`. |
-| `tests/test_cleanse_pipeline.py` | Add test asserting cleanse only mutates `application_data`, not top-level fields. Add lifecycle test (TO_BE_PROCESSED → CLEANSED_PASSED). |
+| `README.md` | Add eval pipeline to project structure, usage section, and feature list |
+| `ingest_pipeline.py` | Add `EVAL_COMPLETED` to allowed status transitions (if re-ingest should reset from EVAL_COMPLETED to TO_BE_PROCESSED on newer data) |
+| `cleanse_pipeline.py` | Ensure `CLEANSED_PASSED` records can be re-cleansed if re-ingested (already supported via `load_candidates(include_recleaned=True)`) |
 
 ## New Files
 
 | File | Purpose |
 |------|---------|
-| `tests/adversarial_test_issue81.py` | Full lifecycle adversarial tests: ingest → cleanse → re-ingest → re-cleanse, with assertions on status transitions and top-level field immutability. |
-
----
+| `eval_pipeline.py` | Main evaluation pipeline module — loads candidates, scores via Gemini, builds email drafts, updates state |
+| `tools/eval_utils.py` | Shared utilities: HTML stripper, rubric JSON loader, scorecard formatter, recommendation band calculator |
+| `tests/test_eval_pipeline.py` | pytest tests: candidate loading, scoring integration, email draft structure, state transitions, XSS stripping |
+| `tests/adversarial_test_issue81.py` | Adversarial tests: full lifecycle ingest→cleanse→eval, empty application_data, quarantine isolation, best_contact_email routing |
 
 ## Implementation Steps
 
-1. **Update `ingest_pipeline.py`**
-   - Line ~398: Change `status = "CLEANSED_PASSED"` → `status = "TO_BE_PROCESSED"` for new records.
-   - Line ~390: When updating an existing record with newer timestamp data, also set `status = "TO_BE_PROCESSED"`.
-   - Update docstrings to reflect that ingest sets `TO_BE_PROCESSED`.
+### Step 1: Create `tools/eval_utils.py`
+1. `load_rubric(path)` — parse `Rubric.md` into structured dimension dicts (or use embedded JSON rubric)
+2. `strip_html(text)` — regex-based HTML tag stripping for XSS prevention
+3. `compute_recommendation_band(total_score: int) -> str` — map 0-12 to Strong/Conditional/No-go
+4. `format_scorecard(matrix_scores, score_reasoning, total_score, band) -> str` — markdown formatter
+5. `build_eval_prompt(record, rubric) -> str` — construct Gemini prompt from record + rubric
 
-2. **Update `cleanse_pipeline.py`**
-   - In `load_candidates()`, return only `TO_BE_PROCESSED` records by default.
-   - Add an optional `include_re cleansed: bool = False` parameter for future re-cleansing use.
-   - Update `run_cleanse_pipeline()` docstring to document the TO_BE_PROCESSED-only behavior.
+### Step 2: Create `eval_pipeline.py`
+1. `load_eval_candidates(db_path)` — query `Database.json` for `status == CLEANSED_PASSED`
+2. `evaluate_record(record, rubric)` — call Gemini via `gemini_call()` with structured prompt, parse 6 dimension scores + reasoning
+3. `build_email_draft(record, matrix_scores, score_reasoning, total_score, band)` — construct `email_draft_payload` dict
+4. `update_eval_state(record)` — set `status = EVAL_COMPLETED`, add `evaluated_at` timestamp, append to `evaluation_log`
+5. `run_eval_pipeline(db_path, rubric_path)` — orchestrator: load candidates → evaluate → build drafts → update states → save atomically
 
-3. **Write adversarial tests (`tests/adversarial_test_issue81.py`)**
-   - `test_ingest_sets_to_be_processed` — ingest CSV → assert all records `status == "TO_BE_PROCESSED"`
-   - `test_cleanse_leaves_top_level_intact` — after cleanse, assert `email`, `best_contact_email`, `timestamp` are unchanged
-   - `test_cleanse_sets_cleansed_passed` — after cleanse, assert `status == "CLEANSED_PASSED"` and `cleansed_at` is ISO-8601
-   - `test_upsert_reset_status` — ingest, cleanse, ingest newer data for same email → assert status resets to `TO_BE_PROCESSED`
-   - `test_quarantine_sets_quarantine_failed` — inject hostile pattern → assert `status == "QUARANTINE_FAILED"`
-   - `test_full_lifecycle` — runs all steps in sequence
+### Step 3: Update `ingest_pipeline.py`
+1. In `upsert_records()`: when updating an existing record with newer data, if current status is `EVAL_COMPLETED`, reset to `TO_BE_PROCESSED` so it re-enters the full pipeline
 
-4. **Run existing tests**
-   - Ensure `test_ingest_pipeline.py` and `test_cleanse_pipeline.py` still pass.
-   - Update any test assertions that assume `CLEANSED_PASSED` after ingest.
+### Step 4: Write Tests
+1. `tests/test_eval_pipeline.py` — unit tests for each function
+2. `tests/adversarial_test_issue81.py` — adversarial lifecycle tests (already exists, extend with eval phase)
 
-5. **Run adversarial tests**
-   - `python tests/adversarial_test_issue81.py` — all must pass.
-
-6. **Documentation**
-   - Update module docstrings for `ingest_pipeline.py` and `cleanse_pipeline.py`.
-   - Update PRD-2 backlog → completed.
-
----
+### Step 5: Update Documentation
+1. `README.md` — add eval pipeline to project structure and usage
+2. Run `pytest tests/ -v` to verify all tests pass
 
 ## Test Strategy
 
-### Unit Tests
-- `test_new_record_status_is_to_be_processed` — verifies `upsert_records` assigns correct status.
-- `test_existing_record_reset_on_update` — verifies status resets when newer data arrives.
+### Unit Tests (`tests/test_eval_pipeline.py`)
+- `test_load_eval_candidates_only_cleansed_passed` — returns only `CLEANSED_PASSED` records
+- `test_load_eval_candidates_empty_database` — empty DB returns []
+- `test_load_eval_candidates_mixed_status` — ignores `TO_BE_PROCESSED`, `QUARANTINE_FAILED`, `EVAL_COMPLETED`
+- `test_evaluate_record_returns_scores` — mock Gemini response, verify 6 dimension scores
+- `test_evaluate_record_returns_reasoning` — verify justification text per dimension
+- `test_compute_recommendation_band` — test all three bands (0-6, 7-9, 10-12)
+- `test_build_email_draft_structure` — verify `recipient`, `subject`, `body`, `generated_at` keys
+- `test_build_email_draft_uses_best_contact_email` — 100% routing accuracy
+- `test_email_draft_body_contains_scorecard` — markdown table with scores
+- `test_strip_html_removes_tags` — XSS protection
+- `test_update_eval_state` — status transition, timestamp, log entry
 
-### Integration Tests
-- `test_ingest_then_cleanse_lifecycle` — full pipeline run: CSV → Database.json → cleanse → verify `CLEANSED_PASSED`.
-- `test_top_level_fields_immutable_during_cleanse` — verifies email, best_contact_email, timestamp survive cleanse untouched.
+### Integration Tests (`tests/adversarial_test_issue81.py`)
+- `test_full_lifecycle_ingest_cleanse_eval` — end-to-end: CSV → ingest → cleanse → eval → verify `EVAL_COMPLETED`
+- `test_eval_leaves_top_level_intact` — email, best_contact_email, timestamp unchanged after eval
+- `test_eval_preserves_quarantine_records` — `QUARANTINE_FAILED` records never enter eval
+- `test_reingest_resets_eval_completed` — newer CSV data resets `EVAL_COMPLETED` → `TO_BE_PROCESSED`
+- `test_empty_application_data_eval` — record with empty `application_data` still evaluates (scores 0 with generic reasoning)
+- `test_eval_idempotent` — running eval twice on same record does not duplicate email drafts in log
 
 ### Edge Cases
-- **Empty application_data:** Record with no dynamic fields should still transition `TO_BE_PROCESSED` → `CLEANSED_PASSED`.
-- **Quarantine path:** Quarantined record should have `status == "QUARANTINE_FAILED"`, not `CLEANSED_PASSED`.
-- **Re-ingest same email:** Newer timestamp data should reset `status` to `TO_BE_PROCESSED` even if previously `CLEANSED_PASSED`.
-- **Same timestamp, same data:** No update occurs, status should remain whatever it was.
-
----
+- Record with `best_contact_email == None` — skip evaluation, log issue
+- Gemini API failure — retry 3x, then skip record and log error
+- Very large `application_data` (> 1MB text) — skip Gemini call, log warning
+- Malformed rubric file — fail fast with descriptive error
+- HTML in application data — stripped in email draft body but preserved in raw record
 
 ## Risks & Mitigations
 
 | Risk | Mitigation |
 |------|------------|
-| **Existing tests assume `CLEANSED_PASSED` after ingest** | Audit all test files; update assertions to expect `TO_BE_PROCESSED`. |
-| **Downstream code expects `CLEANSED_PASSED` immediately** | The cleanse pipeline should be run immediately after ingest in production; document this in README. |
-| **Records stuck in `TO_BE_PROCESSED`** | Add a health-check or timeout mechanism (future issue) to detect records that have been `TO_BE_PROCESSED` for too long. |
-| **Re-cleanse of `CLEANSED_PASSED` records lost** | The optional `include_recleansed` parameter preserves this capability for future use. |
-
----
+| **Gemini API latency > 3s per record** | Implement concurrent evaluation with `asyncio` or `ThreadPoolExecutor` (max 10 workers). Cache Gemini responses keyed by SHA-256 of record + rubric hash. |
+| **Gemini API costs scale with volume** | Response cache prevents duplicate evaluations. Batch dimension scoring in a single prompt (all 6 dimensions at once). |
+| **Inconsistent scoring between runs** | Use temperature=0.0 for deterministic output. Parse structured output (JSON) instead of free text. |
+| **XSS in email draft body** | Strip all HTML tags via `strip_html()` before storing in `email_draft_payload`. |
+| **Memory usage > 512MB** | Process records in streaming fashion (one at a time). Don't load entire database into memory for candidate filtering. |
+| **best_contact_email routing errors** | Explicit assertion in tests. Validate email format before storing draft. |
+| **Rubric changes break parsing** | Embed rubric as versioned JSON file instead of parsing Markdown. Version lock the rubric schema. |
 
 ## Diagrams
 
-### Status Lifecycle State Machine
+### Architecture Overview
 
-![Status Lifecycle](./issue-81-status-lifecycle.png)
+![Architecture Diagram](./issue-81-architecture.png)
 
-### Pipeline Flow (Fixed)
+### Data Flow
 
-![Pipeline Flow](./issue-81-pipeline-flow-fixed.png)
+![Data Flow Diagram](./issue-81-data-flow.png)
 
-### Cleanse Scope: What Gets Mutated
+### Record State Machine
 
-![Cleanse Scope](./issue-81-cleanse-scope.png)
-
----
-
-## Appendix: Corrected Record Lifecycle
-
-### After Ingest
-
-```json
-{
-  "email": "alice@startup.io",
-  "best_contact_email": "alice@startup.io",
-  "timestamp": "2024-06-01T12:00:00Z",
-  "status": "TO_BE_PROCESSED",
-  "application_data": {
-    "company_name": "Alice AI",
-    "industry": "SaaS"
-  }
-}
-```
-
-### After Cleanse
-
-```json
-{
-  "email": "alice@startup.io",
-  "best_contact_email": "alice@startup.io",
-  "timestamp": "2024-06-01T12:00:00Z",
-  "status": "CLEANSED_PASSED",
-  "application_data": {
-    "company_name": "Alice AI",
-    "industry": "SaaS"
-  },
-  "cleansed_at": "2024-06-01T12:01:00Z",
-  "cleansing_log": [
-    {
-      "action": "CLEANSED_PASSED",
-      "timestamp": "2024-06-01T12:01:00Z",
-      "reason": "Regex/Gemini cleanse completed"
-    }
-  ]
-}
-```
-
-### After Quarantine
-
-```json
-{
-  "email": "hostile@startup.io",
-  "best_contact_email": "hostile@startup.io",
-  "timestamp": "2024-06-01T12:00:00Z",
-  "status": "QUARANTINE_FAILED",
-  "application_data": {
-    "company_name": "<script>alert(1)</script>"
-  },
-  "cleansed_at": "2024-06-01T12:01:00Z",
-  "cleansing_log": [
-    {
-      "action": "QUARANTINE_FAILED",
-      "timestamp": "2024-06-01T12:01:00Z",
-      "reason": "Hostile pattern detected"
-    }
-  ]
-}
-```
-
-### After Re-Ingest (Newer Data)
-
-```json
-{
-  "email": "alice@startup.io",
-  "best_contact_email": "alice@startup.io",
-  "timestamp": "2024-06-15T09:30:00Z",
-  "status": "TO_BE_PROCESSED",
-  "application_data": {
-    "company_name": "Alice AI 2.0",
-    "industry": "SaaS",
-    "funding": "Series A"
-  }
-}
-```
+![State Machine Diagram](./issue-81-state-machine.png)
 
 ---
 
-## Summary of Changes from Original Plan
+## Appendix: Rubric Dimensions (from `Rubric.md`)
 
-| Original Plan (Wrong) | Corrected Plan (Per Your Feedback) |
-|-----------------------|-----------------------------------|
-| Migrate schema to `raw_payload_snapshot` + `cleansed_payload` | Keep current schema: `application_data` + `status` + `cleansing_log` |
-| Drop `status` field entirely | Keep `status`; fix lifecycle (TO_BE_PROCESSED → CLEANSED_PASSED) |
-| Ingest pipeline sets `cleansed_payload = null` | Ingest pipeline sets `status = "TO_BE_PROCESSED"` |
-| Cleanse pipeline reads `raw_payload_snapshot` | Cleanse pipeline reads `application_data`; cleanses nested fields only |
-| All fields get cleansed | Only `application_data` fields get cleansed; top-level preserved |
+| # | Dimension | Score Range |
+|---|-----------|-------------|
+| 1 | Venture Description | 0–2 |
+| 2 | Value Chain Use Case | 0–2 |
+| 3 | AI Journey Self-Assessment | 0–2 |
+| 4 | Accelerator & Industry Support | 0–2 |
+| 5 | Team Capabilities & Resourcing | 0–2 |
+| 6 | Venture Funding | 0–2 |
+
+**Overall Score:** Sum of dimensions (max 12)
+
+| Score | Band | Action |
+|-------|------|--------|
+| 10–12 | Strong | Recommend for program |
+| 7–9 | Conditional | Recommend with required improvements |
+| ≤6 | No-go | Decline with feedback |
+
+## Appendix: Status Lifecycle
+
+```
+applications.csv
+     │
+     ▼
+┌─────────────────┐
+│  TO_BE_PROCESSED │ ←── Ingest Pipeline (new / updated records)
+└────────┬────────┘
+         │
+         ▼
+┌─────────────────┐
+│ CLEANSED_PASSED  │ ←── Cleanse Pipeline (quarantine → regex → Gemini)
+└────────┬────────┘
+         │
+         ▼
+┌─────────────────┐
+│ EVAL_COMPLETED   │ ←── Evaluation Pipeline (rubric scoring + email draft)
+└─────────────────┘
+```
+
+## Appendix: Data Model for Evaluation Records
+
+```python
+{
+  "email": "primary@example.com",           # Primary key
+  "best_contact_email": "contact@example.com",  # Email draft recipient
+  "status": "EVAL_COMPLETED",
+  "timestamp": "2024-06-01T12:00:00Z",
+  "cleansed_at": "2024-06-01T12:05:00Z",
+  "evaluated_at": "2024-06-01T12:10:00Z",
+  "application_data": { ... },
+  "matrix_scores": {
+    "venture_description": 2,
+    "value_chain_use_case": 1,
+    "ai_journey_self_assessment": 2,
+    "accelerator_industry_support": 1,
+    "team_capabilities_resourcing": 2,
+    "venture_funding": 0,
+  },
+  "score_reasoning": {
+    "venture_description": "Compelling, evidenced venture...",
+    "value_chain_use_case": "Reasonable use case with some value-chain linkage...",
+    # ... etc
+  },
+  "email_draft_payload": {
+    "recipient": "contact@example.com",
+    "subject": "PCAIS Co-Funded POC Program — Application Feedback",
+    "body": "# Application Feedback\n\n## Scorecard\n...",
+    "generated_at": "2024-06-01T12:10:00Z",
+  },
+  "cleansing_log": [...],
+  "evaluation_log": [
+    {
+      "action": "EVAL_COMPLETED",
+      "timestamp": "2024-06-01T12:10:00Z",
+      "total_score": 8,
+      "band": "Conditional",
+    }
+  ],
+}
+```

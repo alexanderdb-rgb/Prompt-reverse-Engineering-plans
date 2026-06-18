@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+<style>
+  body { background: #1a1a1a; margin: 0; padding: 40px; display: flex; justify-content: center; }
+  .mermaid { background: #1a1a1a; }
+</style>
+</head>
+<body>
+<div class="mermaid">
+stateDiagram-v2
+    [*] --> TO_BE_PROCESSED : Ingest pipeline
+    TO_BE_PROCESSED : status = "TO_BE_PROCESSED"
+    TO_BE_PROCESSED : application_data is raw
+    TO_BE_PROCESSED : email, timestamp untouched
+
+    TO_BE_PROCESSED --> CLEANSED_PASSED : Cleanse succeeds
+    TO_BE_PROCESSED --> QUARANTINE_FAILED : Hostile pattern detected
+
+    CLEANSED_PASSED : status = "CLEANSED_PASSED"
+    CLEANSED_PASSED : cleansed_at set
+    CLEANSED_PASSED : application_data cleansed
+
+    QUARANTINE_FAILED : status = "QUARANTINE_FAILED"
+    QUARANTINE_FAILED : logged to cleaningissues.md
+    QUARANTINE_FAILED : application_data untouched
+
+    CLEANSED_PASSED --> [*] : persist
+    QUARANTINE_FAILED --> [*] : persist
+
+    CLEANSED_PASSED --> TO_BE_PROCESSED : Newer data re-ingested
+    QUARANTINE_FAILED --> TO_BE_PROCESSED : Manual review clears
+
+    note right of TO_BE_PROCESSED
+        Ingest pipeline is the ONLY
+        code path that creates
+        TO_BE_PROCESSED records.
+    end note
+
+    note right of CLEANSED_PASSED
+        Cleanse worker mutates ONLY:
+        - status
+        - cleansed_at
+        - cleansing_log
+        - application_data (nested)
+    end note
+</div>
+<script>
+  mermaid.initialize({ theme: 'dark', startOnLoad: true });
+</script>
+</body>
+</html>

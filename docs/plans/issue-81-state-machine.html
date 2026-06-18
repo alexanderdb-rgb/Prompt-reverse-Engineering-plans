@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+<style>
+  body { background: #1a1a1a; margin: 0; padding: 20px; min-height: 100vh; }
+</style>
+</head>
+<body>
+<div class="mermaid">
+stateDiagram-v2
+    [*] --> TO_BE_PROCESSED : Ingest Pipeline<br/>new or updated CSV data
+
+    TO_BE_PROCESSED --> CLEANSED_PASSED : Cleanse Pipeline<br/>regex + Gemini cleanse OK
+    TO_BE_PROCESSED --> QUARANTINE_FAILED : Cleanse Pipeline<br/>hostile pattern detected
+
+    CLEANSED_PASSED --> EVAL_COMPLETED : Eval Pipeline<br/>rubric scoring + email draft
+
+    QUARANTINE_FAILED --> [*] : Manual review required
+
+    EVAL_COMPLETED --> TO_BE_PROCESSED : Re-ingest Pipeline<br/>newer timestamp detected
+    CLEANSED_PASSED --> TO_BE_PROCESSED : Re-ingest Pipeline<br/>newer timestamp detected
+    QUARANTINE_FAILED --> TO_BE_PROCESSED : Re-ingest Pipeline<br/>newer timestamp detected
+
+    note right of TO_BE_PROCESSED
+        Entry point for all records.
+        Delta filtering ensures only
+        newer timestamps trigger processing.
+    end note
+
+    note right of EVAL_COMPLETED
+        Terminal state for approved records.
+        Contains matrix_scores,
+        score_reasoning, and
+        email_draft_payload.
+    end note
+</div>
+<script>
+mermaid.initialize({ startOnLoad: true, theme: 'dark' });
+</script>
+</body>
+</html>
