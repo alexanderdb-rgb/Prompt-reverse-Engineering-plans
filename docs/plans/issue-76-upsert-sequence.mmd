@@ -1,0 +1,41 @@
+sequenceDiagram
+    participant CSV as applications.csv
+    participant P as ingest_pipeline.py
+    participant DB as Database.json
+    participant ISS as issues.md
+
+    CSV->>P: Row: email=e1, timestamp=t2, name=X, funding=Y
+    P->>P: Partition fields:<br/>fixed: email, best_contact_email, timestamp<br/>dynamic: name, funding → application_data
+
+    alt Email missing
+        P->>ISS: Log "Missing email" error
+    else Email present
+        P->>DB: load_database()
+        DB-->>P: Existing records
+
+        P->>P: get_max_timestamp()
+        P->>P: filter_by_timestamp()
+
+        alt timestamp <= max_timestamp
+            P->>P: Skip record
+        else timestamp > max_timestamp
+            P->>P: identify_conflicts()
+
+            alt Same email, different data, ambiguous timestamp
+                P->>ISS: Log conflict with full snapshot
+            else No conflict
+                P->>DB: Query by email
+
+                alt Email exists in DB
+                    P->>DB: Update application_data in-place
+                    P->>DB: Update timestamp
+                    P->>DB: status = CLEANSED_PASSED
+                else Email new
+                    P->>DB: Append new record
+                    P->>DB: status = CLEANSED_PASSED
+                end
+
+                P->>DB: save_database_atomic()
+            end
+        end
+    end

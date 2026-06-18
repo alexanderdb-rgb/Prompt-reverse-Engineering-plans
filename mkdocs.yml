@@ -1,13 +1,13 @@
 site_name: Implementation Plans
-site_url: ""
+site_url: ''
 theme:
   name: material
   palette:
     scheme: slate
     primary: indigo
 plugins:
-  - glightbox
+- glightbox
 nav:
-  - Home: index.md
-  - Plans:
-    - "(Plans will appear here)": plans/.gitkeep
+- Home: index.md
+- Plans:
+  - "Issue #76 \u2013 Re-implement PRD-1 with email-primary schema": plans/issue-76-plan.md
