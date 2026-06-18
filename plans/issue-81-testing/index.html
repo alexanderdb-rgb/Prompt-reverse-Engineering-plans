@@ -16,7 +16,7 @@
     
     
       
-        <title>Issue #76 - Testing Report - Implementation Plans</title>
+        <title>Issue #81 - Testing Report - Implementation Plans</title>
       
     
     
@@ -75,7 +75,7 @@
     <div data-md-component="skip">
       
         
-        <a href="#issue-76-testing-report" class="md-skip">
+        <a href="#issue-81-testing-report" class="md-skip">
           Skip to content
         </a>
       
@@ -111,7 +111,7 @@
         <div class="md-header__topic" data-md-component="header-topic">
           <span class="md-ellipsis">
             
-              Issue #76 - Testing Report
+              Issue #81 - Testing Report
             
           </span>
         </div>
@@ -335,6 +335,17 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#existing-test-suite-results" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Existing Test Suite Results
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#bugs-found-fixed" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -350,6 +361,17 @@
     <span class="md-ellipsis">
       
         Verified Robust Against
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#code-coverage" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Code Coverage
       
     </span>
   </a>
@@ -373,7 +395,7 @@
 
 
 
-<h1 id="issue-76-testing-report">Issue #76 - Testing Report</h1>
+<h1 id="issue-81-testing-report">Issue #81 - Testing Report</h1>
 <h2 id="tests-performed">Tests Performed</h2>
 <table>
 <thead>
@@ -385,130 +407,147 @@
 </thead>
 <tbody>
 <tr>
-<td>Empty application_data</td>
+<td>ingest_sets_to_be_processed</td>
 <td>PASS</td>
-<td>Records with only fixed columns produce empty dict</td>
+<td>New records correctly get TO_BE_PROCESSED</td>
 </tr>
 <tr>
-<td>Very large application_data (10K chars)</td>
+<td>upsert_newer_timestamp_resets_status</td>
 <td>PASS</td>
-<td>Handled without error</td>
+<td>Re-ingest resets status to TO_BE_PROCESSED</td>
 </tr>
 <tr>
-<td>Unicode and emoji in application_data</td>
+<td>upsert_same_timestamp_no_status_change</td>
 <td>PASS</td>
-<td>Preserved correctly</td>
+<td>Idempotent re-ingest preserves status</td>
 </tr>
 <tr>
-<td>Special characters in email</td>
+<td>cleanse_leaves_top_level_intact</td>
 <td>PASS</td>
-<td>Used as key successfully</td>
+<td>email, best_contact_email, timestamp preserved</td>
 </tr>
 <tr>
-<td>Same email, same timestamp, different data</td>
+<td>cleanse_sets_cleansed_passed</td>
 <td>PASS</td>
-<td>Correctly flagged as conflict</td>
+<td>Status transitions to CLEANSED_PASSED with timestamp</td>
 </tr>
 <tr>
-<td>Same email, different data, newer timestamp</td>
+<td>quarantine_sets_quarantine_failed</td>
 <td>PASS</td>
-<td>No conflict, newer record wins</td>
+<td>Hostile patterns correctly quarantined</td>
 </tr>
 <tr>
-<td>Blank/whitespace email variations</td>
+<td>load_candidates_only_to_be_processed</td>
 <td>PASS</td>
-<td>Routed to issues.md (bug found &amp; fixed)</td>
+<td>Default excludes CLEANSED_PASSED</td>
 </tr>
 <tr>
-<td>Missing best_contact_email</td>
+<td>load_candidates_empty_database</td>
 <td>PASS</td>
-<td>Record still valid with fallback</td>
+<td>Empty DB yields empty candidates</td>
 </tr>
 <tr>
-<td>Old flat schema backward compat</td>
+<td>full_lifecycle</td>
 <td>PASS</td>
-<td>Legacy records preserved, new records use new schema</td>
+<td>End-to-end ingest → cleanse → re-ingest → re-cleanse</td>
 </tr>
 <tr>
-<td>Rapid sequential upserts (100x)</td>
+<td>empty_application_data_cleanse</td>
 <td>PASS</td>
-<td>Correct final state</td>
+<td>Empty app_data still transitions properly</td>
 </tr>
 <tr>
-<td>Hostile patterns in nested application_data</td>
+<td>cleanse_preserves_non_string_fields</td>
 <td>PASS</td>
-<td>Detected at any depth</td>
+<td>int, bool, float, list types preserved</td>
 </tr>
 <tr>
-<td>Regex cleanse preserves top-level fields</td>
+<td>multiple_records_mixed_status</td>
 <td>PASS</td>
-<td>email/status/timestamp untouched</td>
+<td>Only TO_BE_PROCESSED are cleansed</td>
 </tr>
 <tr>
-<td>CLEANSED_PASSED re-cleansing</td>
+<td>empty_application_data (manual)</td>
 <td>PASS</td>
-<td>Eligible for re-processing</td>
+<td>Records with no dynamic fields work</td>
 </tr>
 <tr>
-<td>Empty CSV (header only)</td>
+<td>quarantine_path (manual)</td>
 <td>PASS</td>
-<td>Creates empty database</td>
+<td>Quarantined records preserve raw data</td>
 </tr>
 <tr>
-<td>Unit test suite: test_ingest_pipeline.py</td>
+<td>top_level_field_preservation (manual)</td>
 <td>PASS</td>
-<td>32/32 tests passed</td>
+<td>Regex cleanse never touches top-level</td>
 </tr>
 <tr>
-<td>Unit test suite: test_cleanse_pipeline.py</td>
+<td>idempotent_re_ingest (manual)</td>
 <td>PASS</td>
-<td>54/54 tests passed</td>
+<td>Same data → no status change</td>
 </tr>
 <tr>
-<td>Full project test suite</td>
+<td>null_email_handling (manual)</td>
 <td>PASS</td>
-<td>181 passed, 7 pre-existing failures (gemini API key)</td>
+<td>Missing emails skipped gracefully</td>
 </tr>
 <tr>
-<td>Type checking (mypy)</td>
+<td>unicode_in_email (manual)</td>
 <td>PASS</td>
-<td>No new type errors in changed files</td>
+<td>Unicode emails handled correctly</td>
+</tr>
+<tr>
+<td>very_long_field_values (manual)</td>
+<td>PASS</td>
+<td>50KB strings process without error</td>
+</tr>
+<tr>
+<td>multiple_status_types_in_db (manual)</td>
+<td>PASS</td>
+<td>Only TO_BE_PROCESSED affected</td>
 </tr>
 </tbody>
 </table>
+<h2 id="existing-test-suite-results">Existing Test Suite Results</h2>
+<ul>
+<li><strong>182 passed</strong> (was 181 before — +1 from new adversarial tests)</li>
+<li><strong>7 failed</strong> — same pre-existing Gemini API key failures in <code>test_gemini_call.py</code></li>
+<li><strong>0 regressions</strong> from issue #81 changes</li>
+</ul>
 <h2 id="bugs-found-fixed">Bugs Found &amp; Fixed</h2>
-<ol>
-<li><strong>Whitespace-only emails treated as valid</strong> (adversarial finding)</li>
-<li><strong>Root cause</strong>: Python truthiness of <code>"   "</code> is <code>True</code>, so whitespace-only strings passed email validation.</li>
-<li><strong>Fix</strong>: Explicitly strip email with <code>str(r.get("email", "")).strip()</code> before validation in both <code>identify_conflicts()</code> and <code>upsert_records()</code>.</li>
-<li>
-<p><strong>Commit</strong>: <code>fix(issue-76): strip and validate emails to handle whitespace-only input</code></p>
-</li>
-<li>
-<p><strong>Cleanse pipeline DB reference mismatch</strong> (integration finding)</p>
-</li>
-<li><strong>Root cause</strong>: <code>load_candidates()</code> called <code>load_database()</code> independently, creating separate dict objects from <code>database</code>. Quarantine state updates mutated the candidate list but not the actual database.</li>
-<li><strong>Fix</strong>: Derive <code>candidates</code> directly from the already-loaded <code>database</code> list to preserve object references for in-place mutation.</li>
-<li><strong>Commit</strong>: <code>fix(issue-76): re-architect pipelines for email-primary schema with application_data nesting</code></li>
-</ol>
+<ul>
+<li><strong>Bug: ingest_pipeline set CLEANSED_PASSED on new records</strong></li>
+<li>Fix: Changed to TO_BE_PROCESSED in both new record creation and existing record update paths</li>
+<li><strong>Bug: cleanse_pipeline processed CLEANSED_PASSED as fallback</strong></li>
+<li>Fix: Removed fallback; added <code>include_recleaned</code> parameter to <code>load_candidates()</code></li>
+<li><strong>Bug: Existing tests assumed CLEANSED_PASSED after ingest</strong></li>
+<li>Fix: Updated all assertions in <code>test_ingest_pipeline.py</code> and <code>test_cleanse_pipeline.py</code></li>
+<li><strong>Bug: Issue #76 adversarial test relied on re-cleansing fallback</strong></li>
+<li>Fix: Updated to verify new behavior (CLEANSED_PASSED left untouched)</li>
+</ul>
 <h2 id="verified-robust-against">Verified Robust Against</h2>
 <ul>
 <li>Empty/null/undefined inputs</li>
-<li>Maximum length inputs (10K+ character strings)</li>
-<li>Special characters and unicode (including emoji)</li>
-<li>Concurrent rapid upserts on same email</li>
-<li>Missing optional fields (best_contact_email)</li>
-<li>Old flat-schema database records (backward compatibility)</li>
-<li>Deeply nested application_data structures</li>
-<li>Hostile patterns at any nesting depth</li>
-<li>Empty CSV payloads</li>
-<li>Whitespace-only email strings</li>
-<li>Re-cleansing of already-CLEANSED_PASSED records</li>
+<li>Maximum length inputs (50KB strings)</li>
+<li>Special characters, unicode, emoji in data</li>
+<li>Concurrent simulated upserts (100 rapid operations)</li>
+<li>Missing email fields</li>
+<li>Mixed status types in database</li>
+<li>Quarantine signals in nested application_data</li>
+<li>Re-ingest with same timestamp (idempotent)</li>
+<li>Re-ingest with newer timestamp (status reset)</li>
+<li>Deeply nested record structures</li>
+<li>List values in application_data</li>
+<li>Records with all null values</li>
 </ul>
-<hr>
-<p><strong>Report generated</strong>: 2026-06-18
-<strong>Issue</strong>: <a href="https://github.com/alexanderdb-rgb/Prompt-reverse-Engineering/issues/76">#76</a>
-<strong>Status</strong>: Complete</p>
+<h2 id="code-coverage">Code Coverage</h2>
+<ul>
+<li><code>ingest_pipeline.py</code>: upsert_records() — both new and existing record paths</li>
+<li><code>cleanse_pipeline.py</code>: load_candidates(), run_cleanse_pipeline() — TO_BE_PROCESSED filtering</li>
+<li><code>cleanse_pipeline.py</code>: regex_cleanse() — scope limited to application_data</li>
+<li><code>cleanse_pipeline.py</code>: detect_quarantine_signals() — hostile pattern detection</li>
+<li><code>cleanse_pipeline.py</code>: update_state() — status transitions and logging</li>
+</ul>
 
 
 
