@@ -1,0 +1,13 @@
+site_name: Implementation Plans
+site_url: ""
+theme:
+  name: material
+  palette:
+    scheme: slate
+    primary: indigo
+plugins:
+  - glightbox
+nav:
+  - Home: index.md
+  - Plans:
+    - "(Plans will appear here)": plans/.gitkeep
