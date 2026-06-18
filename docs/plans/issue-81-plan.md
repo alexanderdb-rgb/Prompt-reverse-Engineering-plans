@@ -1,74 +1,81 @@
-# Issue #81 – PRD-2 Re-implementation: Align Data Model with Backlog Specification
+# Issue #81 – PRD-2 Re-implementation: Fix Status Lifecycle & Cleanse Scope
 
 ## Summary
 
-Re-implement the Data Persistence & Cleansing Pipeline (`cleanse_pipeline.py`) and its integration with the ingestion layer (`ingest_pipeline.py`) to align with the backlog PRD-2 specification. The current implementation uses an `application_data` + `status` state-machine schema; the target specification requires a side-by-side `raw_payload_snapshot` / `cleansed_payload` architecture with `updated_at` tracking. This change restores the audit-lineage capability (pristine raw copy next to sanitized output) that was lost in the issue #76 schema migration.
+Fix the ingest → cleanse pipeline integration so that records enter the system as `TO_BE_PROCESSED`, the cleanse pipeline exclusively cleanses fields nested inside `application_data`, and only the `status` and `cleansed_at` top-level fields are mutated by the cleanse worker. The current `ingest_pipeline.py` incorrectly marks new records as `CLEANSED_PASSED`, bypassing the cleanse step entirely.
 
 ---
 
 ## Root Cause Analysis
 
-### Current State (Post-Issue #76)
+### Current Behavior (Bug)
 
-The issue #76 implementation introduced an email-primary schema with these record fields:
+In `ingest_pipeline.py`, the `upsert_records()` function assigns `status = "CLEANSED_PASSED"` to **all** new records:
 
-| Field | Purpose |
-|-------|---------|
-| `email` | Primary key |
-| `best_contact_email` | Secondary contact |
-| `timestamp` | Ingestion timestamp |
-| `status` | State machine (`TO_BE_PROCESSED` → `CLEANSED_PASSED` / `QUARANTINE_FAILED`) |
-| `application_data` | All dynamic CSV fields nested here |
-| `cleansing_log` | Audit trail array |
-| `cleansed_at` | Last cleanse timestamp |
+```python
+# ingest_pipeline.py: line 398
+new_record = {
+    "email": email,
+    "timestamp": incoming_ts,
+    "status": "CLEANSED_PASSED",  # ❌ Should be "TO_BE_PROCESSED"
+    "application_data": app_data,
+}
+```
 
-This design **collapses** raw and cleansed data into a single mutable `application_data` field. Once a record is processed, the original raw CSV values are lost unless reconstructed from external sources.
+This means:
+- Records never enter the `TO_BE_PROCESSED` state.
+- `cleanse_pipeline.py` finds no `TO_BE_PROCESSED` candidates on first run.
+- Data is ingested "clean" by assertion rather than by execution.
+- The quarantine + regex + Gemini three-layer defense is skipped for all new data.
 
-### Target State (Backlog PRD-2)
+### Desired Behavior (Backlog PRD-2)
 
-The backlog specification requires:
+| Stage | Status | Meaning |
+|-------|--------|---------|
+| After Ingest | `TO_BE_PROCESSED` | Record is raw; awaiting cleanse |
+| After Cleanse | `CLEANSED_PASSED` | Record has been through quarantine → regex → Gemini |
+| After Quarantine | `QUARANTINE_FAILED` | Hostile signals detected; needs manual review |
 
-| Field | Type | Purpose |
-|-------|------|---------|
-| `email` | str (PK) | Primary key for upsert |
-| `raw_payload_snapshot` | dict (Non-Nullable) | **Pristine** copy of the raw CSV row — never modified |
-| `cleansed_payload` | dict (Nullable) | Sanitized copy produced by the cleansing worker |
-| `updated_at` | str (ISO-8601) | Timestamp of last worker modification |
-
-### Why This Matters
-
-1. **Audit Lineage:** The completed PRD-2 explicitly lists "0.00% corruption rate through side-by-side preservation of pristine raw payloads and modified attributes" as a success metric. The current design violates this.
-2. **Reproducibility:** If cleansing logic changes (new regex rules, updated Gemini prompts), engineers need the original raw data to re-run cleansing deterministically.
-3. **Quarantine Review:** When records are quarantined, reviewers need to see both the raw input that triggered the quarantine and the attempted cleanse output.
-4. **Evaluation Integrity:** PRD-3 (Evaluation Engine) expects to read from a clean `cleansed_payload` while having access to raw values for dispute resolution.
+**Cleanse scope rules:**
+- **Cleanse:** All fields inside `application_data` (recursive)
+- **Preserve:** `email`, `best_contact_email`, `timestamp` at top level
+- **Mutate by cleanse worker only:** `status`, `cleansed_at`, `cleansing_log`
 
 ---
 
 ## Proposed Solution
 
-### High-Level Approach
+### Fix 1: Ingest Pipeline — Set `TO_BE_PROCESSED` on New/Upsert Records
 
-Refactor both `ingest_pipeline.py` and `cleanse_pipeline.py` to use the `raw_payload_snapshot` / `cleansed_payload` dual-payload model. Preserve the existing operational behaviors (delta filtering, conflict detection, quarantine, atomic saves) while changing the data shape.
+When a record is newly inserted **or** when an existing record's `application_data` is updated with newer timestamp data, reset its `status` to `TO_BE_PROCESSED` so it re-enters the cleanse queue.
 
-### Architecture Changes
+**Before (bug):**
+```python
+new_record["status"] = "CLEANSED_PASSED"
+```
 
-**Ingest Pipeline Changes:**
-- Instead of partitioning CSV fields into fixed fields + `application_data`, store the **entire raw CSV row** (minus the email) into `raw_payload_snapshot`.
-- Set `cleansed_payload` to `null` on initial ingestion (the cleansing worker will populate it).
-- Drop `status` field — the presence/absence of `cleansed_payload` indicates processing state.
-- Drop `application_data` field entirely.
-- Use `updated_at` instead of `timestamp` (same semantics, clearer name).
+**After (fix):**
+```python
+new_record["status"] = "TO_BE_PROCESSED"
+```
 
-**Cleanse Pipeline Changes:**
-- Read from `raw_payload_snapshot` (never mutate it).
-- Write cleansed output to `cleansed_payload`.
-- Apply the same three-layer defense: quarantine detection → regex cleanse → Gemini fallback.
-- On quarantine: set `cleansed_payload` to a quarantine marker or leave it `null` with a quarantine flag.
-- Drop `status`, `cleansing_log`, `cleansed_at` fields — these are replaced by `updated_at` + the presence of `cleansed_payload`.
+Similarly, when an existing record's `application_data` is overwritten by newer data, reset `status` to `TO_BE_PROCESSED`.
 
-**Shared Utilities:**
-- `cleanse_utils.py` remains largely unchanged (walk_dict, strip_control_chars, etc.).
-- Add a helper to migrate old-schema records on first read.
+### Fix 2: Cleanse Pipeline — Confirm `TO_BE_PROCESSED`-Only Filtering
+
+Verify that `load_candidates()` and the orchestrator only operate on records where `status == "TO_BE_PROCESSED"`. Remove the fallback that also processes `CLEANSED_PASSED` records unless explicitly requested for re-cleansing.
+
+### Fix 3: Cleanse Scope — Preserve Top-Level Fields
+
+The existing `regex_cleanse()` already limits mutation to `application_data` (verified in current code). Add an explicit guarantee: if a quarantined or cleansed record has its top-level `email`, `best_contact_email`, or `timestamp` mutated, the test suite fails.
+
+### Fix 4: Status Lifecycle Test Suite
+
+Create an adversarial test that walks the full lifecycle:
+1. Ingest CSV → assert `status == "TO_BE_PROCESSED"`
+2. Run cleanse → assert `status == "CLEANSED_PASSED"` and `cleansed_at` is set
+3. Ingest newer CSV for same email → assert `status` resets to `"TO_BE_PROCESSED"`
+4. Run cleanse again → assert `status == "CLEANSED_PASSED"`
 
 ---
 
@@ -76,52 +83,48 @@ Refactor both `ingest_pipeline.py` and `cleanse_pipeline.py` to use the `raw_pay
 
 | File | Change |
 |------|--------|
-| `cleanse_pipeline.py` | Refactor to read `raw_payload_snapshot` and write `cleansed_payload`. Remove `status`, `cleansing_log`, `cleansed_at`. Update `load_candidates` logic. Update `update_state`. |
-| `ingest_pipeline.py` | Replace `_partition_fields` with `_build_raw_snapshot`. Store full CSV row in `raw_payload_snapshot`. Set `cleansed_payload = null`. Use `updated_at` instead of `timestamp`. Remove `status` assignment. |
-| `tools/cleanse_utils.py` | Add `migrate_old_schema(record)` helper for backward compatibility. |
+| `ingest_pipeline.py` | In `upsert_records()`, set `status = "TO_BE_PROCESSED"` for new records. When updating existing records with newer data, also reset `status = "TO_BE_PROCESSED"`. Remove `CLEANSED_PASSED` assignment. |
+| `cleanse_pipeline.py` | In `run_cleanse_pipeline()`, remove the `CLEANSED_PASSED` fallback from candidate loading unless explicitly configured for re-cleansing. Confirm `load_candidates()` returns only `TO_BE_PROCESSED` by default. |
+| `tests/test_ingest_pipeline.py` | Add test asserting new records have `status == "TO_BE_PROCESSED"`. |
+| `tests/test_cleanse_pipeline.py` | Add test asserting cleanse only mutates `application_data`, not top-level fields. Add lifecycle test (TO_BE_PROCESSED → CLEANSED_PASSED). |
 
 ## New Files
 
 | File | Purpose |
 |------|---------|
-| `tests/test_schema_migration.py` | Unit tests for old-schema → new-schema migration helper. |
+| `tests/adversarial_test_issue81.py` | Full lifecycle adversarial tests: ingest → cleanse → re-ingest → re-cleanse, with assertions on status transitions and top-level field immutability. |
+
+---
 
 ## Implementation Steps
 
-1. **Update `cleanse_utils.py`**
-   - Add `migrate_old_schema(record)` that converts issue-76 schema records to the new format:
-     - Moves `application_data` → `raw_payload_snapshot`
-     - Initializes `cleansed_payload = null`
-     - Copies `timestamp` → `updated_at`
-     - Removes `status`, `cleansing_log`, `cleansed_at`, `best_contact_email` (if not in raw data)
-   - Add `is_new_schema(record)` helper.
+1. **Update `ingest_pipeline.py`**
+   - Line ~398: Change `status = "CLEANSED_PASSED"` → `status = "TO_BE_PROCESSED"` for new records.
+   - Line ~390: When updating an existing record with newer timestamp data, also set `status = "TO_BE_PROCESSED"`.
+   - Update docstrings to reflect that ingest sets `TO_BE_PROCESSED`.
 
-2. **Update `ingest_pipeline.py`**
-   - Replace `_partition_fields(record)` with `_build_raw_snapshot(record)`:
-     - Returns `{"email": email, "raw_payload_snapshot": {all non-email CSV fields}, "cleansed_payload": null, "updated_at": record["timestamp"]}`
-   - Remove `status = "CLEANSED_PASSED"` from upsert — the ingest pipeline no longer marks records as cleansed.
-   - Update `upsert_records` to use `updated_at` instead of `timestamp`.
-   - Update conflict detection to compare `raw_payload_snapshot` instead of `application_data`.
-   - Call `migrate_old_schema` on database records at load time if `raw_payload_snapshot` is absent.
+2. **Update `cleanse_pipeline.py`**
+   - In `load_candidates()`, return only `TO_BE_PROCESSED` records by default.
+   - Add an optional `include_re cleansed: bool = False` parameter for future re-cleansing use.
+   - Update `run_cleanse_pipeline()` docstring to document the TO_BE_PROCESSED-only behavior.
 
-3. **Update `cleanse_pipeline.py`**
-   - Change `load_candidates` to return records where `cleansed_payload is None` (unprocessed) or where `updated_at` is older than a threshold (re-cleansing).
-   - Change `regex_cleanse` to read from `record["raw_payload_snapshot"]` and produce `cleansed_payload`.
-   - Change `detect_quarantine_signals` to scan `raw_payload_snapshot`.
-   - Remove `update_state` function — replace with a lightweight `touch_updated_at(record)`.
-   - Remove `log_quarantine` dependency on `cleansing_log`.
-   - Update `run_cleanse_pipeline` orchestrator to write `cleansed_payload` instead of mutating `application_data`.
+3. **Write adversarial tests (`tests/adversarial_test_issue81.py`)**
+   - `test_ingest_sets_to_be_processed` — ingest CSV → assert all records `status == "TO_BE_PROCESSED"`
+   - `test_cleanse_leaves_top_level_intact` — after cleanse, assert `email`, `best_contact_email`, `timestamp` are unchanged
+   - `test_cleanse_sets_cleansed_passed` — after cleanse, assert `status == "CLEANSED_PASSED"` and `cleansed_at` is ISO-8601
+   - `test_upsert_reset_status` — ingest, cleanse, ingest newer data for same email → assert status resets to `TO_BE_PROCESSED`
+   - `test_quarantine_sets_quarantine_failed` — inject hostile pattern → assert `status == "QUARANTINE_FAILED"`
+   - `test_full_lifecycle` — runs all steps in sequence
 
-4. **Write tests**
-   - `test_schema_migration.py`: Verify old records with `application_data` migrate correctly.
-   - Update `test_ingest_pipeline.py`: Assert new records have `raw_payload_snapshot` and `cleansed_payload = null`.
-   - Update `test_cleanse_pipeline.py`: Assert cleansed output goes to `cleansed_payload`, raw remains untouched.
+4. **Run existing tests**
+   - Ensure `test_ingest_pipeline.py` and `test_cleanse_pipeline.py` still pass.
+   - Update any test assertions that assume `CLEANSED_PASSED` after ingest.
 
 5. **Run adversarial tests**
-   - Execute `adversarial_test_issue76.py` equivalents to verify no regressions in quarantine, regex, and Gemini behaviors.
+   - `python tests/adversarial_test_issue81.py` — all must pass.
 
 6. **Documentation**
-   - Update module docstrings to reflect the new schema.
+   - Update module docstrings for `ingest_pipeline.py` and `cleanse_pipeline.py`.
    - Update PRD-2 backlog → completed.
 
 ---
@@ -129,22 +132,18 @@ Refactor both `ingest_pipeline.py` and `cleanse_pipeline.py` to use the `raw_pay
 ## Test Strategy
 
 ### Unit Tests
-- `test_migrate_old_schema` — verifies all old fields map correctly, new fields are initialized.
-- `test_build_raw_snapshot` — verifies CSV rows become `raw_payload_snapshot` with email extracted.
-- `test_regex_cleanse_reads_raw_writes_cleansed` — verifies the read/write boundary.
-- `test_raw_payload_immutable` — asserts that after cleansing, `raw_payload_snapshot` is unchanged.
+- `test_new_record_status_is_to_be_processed` — verifies `upsert_records` assigns correct status.
+- `test_existing_record_reset_on_update` — verifies status resets when newer data arrives.
 
 ### Integration Tests
-- Ingest a CSV → verify database records have `raw_payload_snapshot` and `null` `cleansed_payload`.
-- Run cleanse pipeline → verify `cleansed_payload` is populated and `raw_payload_snapshot` is identical to pre-cleanse.
-- Re-cleanse a record → verify `updated_at` changes but `raw_payload_snapshot` remains constant.
+- `test_ingest_then_cleanse_lifecycle` — full pipeline run: CSV → Database.json → cleanse → verify `CLEANSED_PASSED`.
+- `test_top_level_fields_immutable_during_cleanse` — verifies email, best_contact_email, timestamp survive cleanse untouched.
 
 ### Edge Cases
-- **Old database with mixed schemas:** Some records have `application_data`, others already have `raw_payload_snapshot`. The migration helper must handle both transparently.
-- **Empty CSV fields:** These should appear as empty strings in `raw_payload_snapshot`, not be omitted.
-- **Unicode/emoji in raw data:** Must survive untouched in `raw_payload_snapshot` and be NFC-normalized in `cleansed_payload`.
-- **Quarantine path:** Quarantined records should have `cleansed_payload = null` (or a quarantine marker) and an intact `raw_payload_snapshot`.
-- **Gemini corrections:** Corrections should be applied to `cleansed_payload`, never to `raw_payload_snapshot`.
+- **Empty application_data:** Record with no dynamic fields should still transition `TO_BE_PROCESSED` → `CLEANSED_PASSED`.
+- **Quarantine path:** Quarantined record should have `status == "QUARANTINE_FAILED"`, not `CLEANSED_PASSED`.
+- **Re-ingest same email:** Newer timestamp data should reset `status` to `TO_BE_PROCESSED` even if previously `CLEANSED_PASSED`.
+- **Same timestamp, same data:** No update occurs, status should remain whatever it was.
 
 ---
 
@@ -152,33 +151,47 @@ Refactor both `ingest_pipeline.py` and `cleanse_pipeline.py` to use the `raw_pay
 
 | Risk | Mitigation |
 |------|------------|
-| **Breaking existing databases** (records use old schema) | Implement `migrate_old_schema` helper; call it transparently on `load_database`. Write a one-time migration script and test it. |
-| **Tests from issue #76 break** | The adversarial test file references `application_data`. Update it or create `adversarial_test_issue81.py` with the new schema assertions. |
-| **Data loss during migration** | The migration copies `application_data` → `raw_payload_snapshot`; no destructive moves. The old fields are removed only after copying. |
-| **Performance regression** | The new schema stores two copies of data (raw + cleansed). For 500 records/minute throughput target, this is negligible (dict references are cheap; only string values are duplicated). |
-| **Quarantine records lose state** | Quarantine state is now implicit (`cleansed_payload is None` + presence in `cleaningissues.md`). Document this behavior. |
+| **Existing tests assume `CLEANSED_PASSED` after ingest** | Audit all test files; update assertions to expect `TO_BE_PROCESSED`. |
+| **Downstream code expects `CLEANSED_PASSED` immediately** | The cleanse pipeline should be run immediately after ingest in production; document this in README. |
+| **Records stuck in `TO_BE_PROCESSED`** | Add a health-check or timeout mechanism (future issue) to detect records that have been `TO_BE_PROCESSED` for too long. |
+| **Re-cleanse of `CLEANSED_PASSED` records lost** | The optional `include_recleansed` parameter preserves this capability for future use. |
 
 ---
 
 ## Diagrams
 
-### Schema Comparison: Current vs Target
+### Status Lifecycle State Machine
 
-![Schema Comparison](./issue-81-schema-comparison.png)
+![Status Lifecycle](./issue-81-status-lifecycle.png)
 
-### Pipeline Flow (Target Architecture)
+### Pipeline Flow (Fixed)
 
-![Pipeline Flow](./issue-81-pipeline-flow.png)
+![Pipeline Flow](./issue-81-pipeline-flow-fixed.png)
 
-### Data Lifecycle
+### Cleanse Scope: What Gets Mutated
 
-![Data Lifecycle](./issue-81-data-lifecycle.png)
+![Cleanse Scope](./issue-81-cleanse-scope.png)
 
 ---
 
-## Appendix: Schema Migration Specification
+## Appendix: Corrected Record Lifecycle
 
-### Old Record (Issue #76)
+### After Ingest
+
+```json
+{
+  "email": "alice@startup.io",
+  "best_contact_email": "alice@startup.io",
+  "timestamp": "2024-06-01T12:00:00Z",
+  "status": "TO_BE_PROCESSED",
+  "application_data": {
+    "company_name": "Alice AI",
+    "industry": "SaaS"
+  }
+}
+```
+
+### After Cleanse
 
 ```json
 {
@@ -190,71 +203,63 @@ Refactor both `ingest_pipeline.py` and `cleanse_pipeline.py` to use the `raw_pay
     "company_name": "Alice AI",
     "industry": "SaaS"
   },
+  "cleansed_at": "2024-06-01T12:01:00Z",
   "cleansing_log": [
     {
       "action": "CLEANSED_PASSED",
-      "timestamp": "2024-06-01T12:00:00Z",
+      "timestamp": "2024-06-01T12:01:00Z",
       "reason": "Regex/Gemini cleanse completed"
     }
-  ],
-  "cleansed_at": "2024-06-01T12:00:00Z"
+  ]
 }
 ```
 
-### Migrated Record (Issue #81)
+### After Quarantine
+
+```json
+{
+  "email": "hostile@startup.io",
+  "best_contact_email": "hostile@startup.io",
+  "timestamp": "2024-06-01T12:00:00Z",
+  "status": "QUARANTINE_FAILED",
+  "application_data": {
+    "company_name": "<script>alert(1)</script>"
+  },
+  "cleansed_at": "2024-06-01T12:01:00Z",
+  "cleansing_log": [
+    {
+      "action": "QUARANTINE_FAILED",
+      "timestamp": "2024-06-01T12:01:00Z",
+      "reason": "Hostile pattern detected"
+    }
+  ]
+}
+```
+
+### After Re-Ingest (Newer Data)
 
 ```json
 {
   "email": "alice@startup.io",
-  "raw_payload_snapshot": {
-    "best_contact_email": "alice@startup.io",
-    "timestamp": "2024-06-01T12:00:00Z",
-    "company_name": "Alice AI",
-    "industry": "SaaS"
-  },
-  "cleansed_payload": {
-    "best_contact_email": "alice@startup.io",
-    "timestamp": "2024-06-01T12:00:00Z",
-    "company_name": "Alice AI",
-    "industry": "SaaS"
-  },
-  "updated_at": "2024-06-01T12:00:00Z"
+  "best_contact_email": "alice@startup.io",
+  "timestamp": "2024-06-15T09:30:00Z",
+  "status": "TO_BE_PROCESSED",
+  "application_data": {
+    "company_name": "Alice AI 2.0",
+    "industry": "SaaS",
+    "funding": "Series A"
+  }
 }
 ```
 
-### New Record After Ingest (Before Cleanse)
+---
 
-```json
-{
-  "email": "bob@startup.io",
-  "raw_payload_snapshot": {
-    "best_contact_email": "bob@startup.io",
-    "timestamp": "2024-06-15T09:30:00Z",
-    "company_name": "Bob's   Bots",
-    "industry": "Robotics"
-  },
-  "cleansed_payload": null,
-  "updated_at": "2024-06-15T09:30:00Z"
-}
-```
+## Summary of Changes from Original Plan
 
-### New Record After Cleanse
-
-```json
-{
-  "email": "bob@startup.io",
-  "raw_payload_snapshot": {
-    "best_contact_email": "bob@startup.io",
-    "timestamp": "2024-06-15T09:30:00Z",
-    "company_name": "Bob's   Bots",
-    "industry": "Robotics"
-  },
-  "cleansed_payload": {
-    "best_contact_email": "bob@startup.io",
-    "timestamp": "2024-06-15T09:30:00Z",
-    "company_name": "Bob's Bots",
-    "industry": "Robotics"
-  },
-  "updated_at": "2024-06-15T09:31:00Z"
-}
-```
+| Original Plan (Wrong) | Corrected Plan (Per Your Feedback) |
+|-----------------------|-----------------------------------|
+| Migrate schema to `raw_payload_snapshot` + `cleansed_payload` | Keep current schema: `application_data` + `status` + `cleansing_log` |
+| Drop `status` field entirely | Keep `status`; fix lifecycle (TO_BE_PROCESSED → CLEANSED_PASSED) |
+| Ingest pipeline sets `cleansed_payload = null` | Ingest pipeline sets `status = "TO_BE_PROCESSED"` |
+| Cleanse pipeline reads `raw_payload_snapshot` | Cleanse pipeline reads `application_data`; cleanses nested fields only |
+| All fields get cleansed | Only `application_data` fields get cleansed; top-level preserved |

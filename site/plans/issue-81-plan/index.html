@@ -1,0 +1,1398 @@
+<!DOCTYPE html><html lang="en" class="no-js"><head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+      
+      
+      
+        <link rel="prev" href="../issue-76-plan/">
+      
+      
+      
+        
+      
+      
+      <link rel="icon" href="../../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.6">
+    
+    
+      
+        <title>Issue #81 – PRD-2 Re-implementation - Implementation Plans</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../assets/stylesheets/main.484c7ddc.min.css">
+      
+        
+        <link rel="stylesheet" href="../../assets/stylesheets/palette.ab4e12ef.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="">
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&amp;display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+    <script>__md_scope=new URL("../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  <link href="../../assets/stylesheets/glightbox.min.css" rel="stylesheet"><script src="../../assets/javascripts/glightbox.min.js"></script><style id="glightbox-style">
+            html.glightbox-open { overflow: initial; height: 100%; }
+            .gslide-title { margin-top: 0px; user-select: text; }
+            .gslide-desc { color: #666; user-select: text; }
+            .gslide-image img { background: white; }
+            .gscrollbar-fixer { padding-right: 15px; }
+            .gdesc-inner { font-size: 0.75rem; }
+            body[data-md-color-scheme="slate"] .gdesc-inner { background: var(--md-default-bg-color); }
+            body[data-md-color-scheme="slate"] .gslide-title { color: var(--md-default-fg-color); }
+            body[data-md-color-scheme="slate"] .gslide-desc { color: var(--md-default-fg-color); }
+        </style></head>
+  
+  
+    
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="slate" data-md-color-primary="indigo" data-md-color-accent="indigo">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#issue-81-prd-2-re-implementation-align-data-model-with-backlog-specification" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+  
+
+<header class="md-header md-header--shadow" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href="../.." title="Implementation Plans" class="md-header__button md-logo" aria-label="Implementation Plans" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"></path></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"></path></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            Implementation Plans
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              Issue #81 – PRD-2 Re-implementation
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+    
+    
+    
+    
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation">
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+
+<nav class="md-nav md-nav--primary" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../.." title="Implementation Plans" class="md-nav__button md-logo" aria-label="Implementation Plans" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"></path></svg>
+
+    </a>
+    Implementation Plans
+  </label>
+  
+  <ul class="md-nav__list" data-md-scrollfix="">
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../.." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Home
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+    
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2" checked="">
+        
+          
+          <label class="md-nav__link" for="__nav_2" id="__nav_2_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Plans
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_2">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Plans
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix="">
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../issue-76-plan/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Issue #76 – Re-implement PRD-1 with email-primary schema
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+    
+  
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Issue #81 – PRD-2 Re-implementation
+  
+
+    
+  </span>
+  
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Issue #81 – PRD-2 Re-implementation
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix="">
+      
+        <li class="md-nav__item">
+  <a href="#summary" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Summary
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#root-cause-analysis" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Root Cause Analysis
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Root Cause Analysis">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#current-state-post-issue-76" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Current State (Post-Issue #76)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#target-state-backlog-prd-2" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Target State (Backlog PRD-2)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#why-this-matters" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Why This Matters
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#proposed-solution" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Proposed Solution
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Proposed Solution">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#high-level-approach" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        High-Level Approach
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#architecture-changes" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Architecture Changes
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#files-to-modify" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Files to Modify
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#new-files" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        New Files
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#implementation-steps" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Implementation Steps
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#test-strategy" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Test Strategy
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Test Strategy">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#unit-tests" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Unit Tests
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#integration-tests" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Integration Tests
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#edge-cases" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Edge Cases
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#risks-mitigations" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Risks &amp; Mitigations
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#diagrams" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Diagrams
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Diagrams">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#schema-comparison-current-vs-target" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Schema Comparison: Current vs Target
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#pipeline-flow-target-architecture" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Pipeline Flow (Target Architecture)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#data-lifecycle" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Data Lifecycle
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#appendix-schema-migration-specification" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Appendix: Schema Migration Specification
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Appendix: Schema Migration Specification">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#old-record-issue-76" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Old Record (Issue #76)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#migrated-record-issue-81" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Migrated Record (Issue #81)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#new-record-after-ingest-before-cleanse" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        New Record After Ingest (Before Cleanse)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#new-record-after-cleanse" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        New Record After Cleanse
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc">
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix="">
+      
+        <li class="md-nav__item">
+  <a href="#summary" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Summary
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#root-cause-analysis" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Root Cause Analysis
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Root Cause Analysis">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#current-state-post-issue-76" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Current State (Post-Issue #76)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#target-state-backlog-prd-2" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Target State (Backlog PRD-2)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#why-this-matters" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Why This Matters
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#proposed-solution" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Proposed Solution
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Proposed Solution">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#high-level-approach" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        High-Level Approach
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#architecture-changes" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Architecture Changes
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#files-to-modify" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Files to Modify
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#new-files" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        New Files
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#implementation-steps" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Implementation Steps
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#test-strategy" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Test Strategy
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Test Strategy">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#unit-tests" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Unit Tests
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#integration-tests" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Integration Tests
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#edge-cases" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Edge Cases
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#risks-mitigations" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Risks &amp; Mitigations
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#diagrams" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Diagrams
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Diagrams">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#schema-comparison-current-vs-target" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Schema Comparison: Current vs Target
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#pipeline-flow-target-architecture" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Pipeline Flow (Target Architecture)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#data-lifecycle" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Data Lifecycle
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#appendix-schema-migration-specification" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Appendix: Schema Migration Specification
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Appendix: Schema Migration Specification">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#old-record-issue-76" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Old Record (Issue #76)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#migrated-record-issue-81" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Migrated Record (Issue #81)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#new-record-after-ingest-before-cleanse" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        New Record After Ingest (Before Cleanse)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#new-record-after-cleanse" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        New Record After Cleanse
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+
+<h1 id="issue-81-prd-2-re-implementation-align-data-model-with-backlog-specification">Issue #81 – PRD-2 Re-implementation: Align Data Model with Backlog Specification</h1>
+<h2 id="summary">Summary</h2>
+<p>Re-implement the Data Persistence &amp; Cleansing Pipeline (<code>cleanse_pipeline.py</code>) and its integration with the ingestion layer (<code>ingest_pipeline.py</code>) to align with the backlog PRD-2 specification. The current implementation uses an <code>application_data</code> + <code>status</code> state-machine schema; the target specification requires a side-by-side <code>raw_payload_snapshot</code> / <code>cleansed_payload</code> architecture with <code>updated_at</code> tracking. This change restores the audit-lineage capability (pristine raw copy next to sanitized output) that was lost in the issue #76 schema migration.</p>
+<hr>
+<h2 id="root-cause-analysis">Root Cause Analysis</h2>
+<h3 id="current-state-post-issue-76">Current State (Post-Issue #76)</h3>
+<p>The issue #76 implementation introduced an email-primary schema with these record fields:</p>
+<table>
+<thead>
+<tr>
+<th>Field</th>
+<th>Purpose</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>email</code></td>
+<td>Primary key</td>
+</tr>
+<tr>
+<td><code>best_contact_email</code></td>
+<td>Secondary contact</td>
+</tr>
+<tr>
+<td><code>timestamp</code></td>
+<td>Ingestion timestamp</td>
+</tr>
+<tr>
+<td><code>status</code></td>
+<td>State machine (<code>TO_BE_PROCESSED</code> → <code>CLEANSED_PASSED</code> / <code>QUARANTINE_FAILED</code>)</td>
+</tr>
+<tr>
+<td><code>application_data</code></td>
+<td>All dynamic CSV fields nested here</td>
+</tr>
+<tr>
+<td><code>cleansing_log</code></td>
+<td>Audit trail array</td>
+</tr>
+<tr>
+<td><code>cleansed_at</code></td>
+<td>Last cleanse timestamp</td>
+</tr>
+</tbody>
+</table>
+<p>This design <strong>collapses</strong> raw and cleansed data into a single mutable <code>application_data</code> field. Once a record is processed, the original raw CSV values are lost unless reconstructed from external sources.</p>
+<h3 id="target-state-backlog-prd-2">Target State (Backlog PRD-2)</h3>
+<p>The backlog specification requires:</p>
+<table>
+<thead>
+<tr>
+<th>Field</th>
+<th>Type</th>
+<th>Purpose</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>email</code></td>
+<td>str (PK)</td>
+<td>Primary key for upsert</td>
+</tr>
+<tr>
+<td><code>raw_payload_snapshot</code></td>
+<td>dict (Non-Nullable)</td>
+<td><strong>Pristine</strong> copy of the raw CSV row — never modified</td>
+</tr>
+<tr>
+<td><code>cleansed_payload</code></td>
+<td>dict (Nullable)</td>
+<td>Sanitized copy produced by the cleansing worker</td>
+</tr>
+<tr>
+<td><code>updated_at</code></td>
+<td>str (ISO-8601)</td>
+<td>Timestamp of last worker modification</td>
+</tr>
+</tbody>
+</table>
+<h3 id="why-this-matters">Why This Matters</h3>
+<ol>
+<li><strong>Audit Lineage:</strong> The completed PRD-2 explicitly lists "0.00% corruption rate through side-by-side preservation of pristine raw payloads and modified attributes" as a success metric. The current design violates this.</li>
+<li><strong>Reproducibility:</strong> If cleansing logic changes (new regex rules, updated Gemini prompts), engineers need the original raw data to re-run cleansing deterministically.</li>
+<li><strong>Quarantine Review:</strong> When records are quarantined, reviewers need to see both the raw input that triggered the quarantine and the attempted cleanse output.</li>
+<li><strong>Evaluation Integrity:</strong> PRD-3 (Evaluation Engine) expects to read from a clean <code>cleansed_payload</code> while having access to raw values for dispute resolution.</li>
+</ol>
+<hr>
+<h2 id="proposed-solution">Proposed Solution</h2>
+<h3 id="high-level-approach">High-Level Approach</h3>
+<p>Refactor both <code>ingest_pipeline.py</code> and <code>cleanse_pipeline.py</code> to use the <code>raw_payload_snapshot</code> / <code>cleansed_payload</code> dual-payload model. Preserve the existing operational behaviors (delta filtering, conflict detection, quarantine, atomic saves) while changing the data shape.</p>
+<h3 id="architecture-changes">Architecture Changes</h3>
+<p><strong>Ingest Pipeline Changes:</strong>
+- Instead of partitioning CSV fields into fixed fields + <code>application_data</code>, store the <strong>entire raw CSV row</strong> (minus the email) into <code>raw_payload_snapshot</code>.
+- Set <code>cleansed_payload</code> to <code>null</code> on initial ingestion (the cleansing worker will populate it).
+- Drop <code>status</code> field — the presence/absence of <code>cleansed_payload</code> indicates processing state.
+- Drop <code>application_data</code> field entirely.
+- Use <code>updated_at</code> instead of <code>timestamp</code> (same semantics, clearer name).</p>
+<p><strong>Cleanse Pipeline Changes:</strong>
+- Read from <code>raw_payload_snapshot</code> (never mutate it).
+- Write cleansed output to <code>cleansed_payload</code>.
+- Apply the same three-layer defense: quarantine detection → regex cleanse → Gemini fallback.
+- On quarantine: set <code>cleansed_payload</code> to a quarantine marker or leave it <code>null</code> with a quarantine flag.
+- Drop <code>status</code>, <code>cleansing_log</code>, <code>cleansed_at</code> fields — these are replaced by <code>updated_at</code> + the presence of <code>cleansed_payload</code>.</p>
+<p><strong>Shared Utilities:</strong>
+- <code>cleanse_utils.py</code> remains largely unchanged (walk_dict, strip_control_chars, etc.).
+- Add a helper to migrate old-schema records on first read.</p>
+<hr>
+<h2 id="files-to-modify">Files to Modify</h2>
+<table>
+<thead>
+<tr>
+<th>File</th>
+<th>Change</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>cleanse_pipeline.py</code></td>
+<td>Refactor to read <code>raw_payload_snapshot</code> and write <code>cleansed_payload</code>. Remove <code>status</code>, <code>cleansing_log</code>, <code>cleansed_at</code>. Update <code>load_candidates</code> logic. Update <code>update_state</code>.</td>
+</tr>
+<tr>
+<td><code>ingest_pipeline.py</code></td>
+<td>Replace <code>_partition_fields</code> with <code>_build_raw_snapshot</code>. Store full CSV row in <code>raw_payload_snapshot</code>. Set <code>cleansed_payload = null</code>. Use <code>updated_at</code> instead of <code>timestamp</code>. Remove <code>status</code> assignment.</td>
+</tr>
+<tr>
+<td><code>tools/cleanse_utils.py</code></td>
+<td>Add <code>migrate_old_schema(record)</code> helper for backward compatibility.</td>
+</tr>
+</tbody>
+</table>
+<h2 id="new-files">New Files</h2>
+<table>
+<thead>
+<tr>
+<th>File</th>
+<th>Purpose</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>tests/test_schema_migration.py</code></td>
+<td>Unit tests for old-schema → new-schema migration helper.</td>
+</tr>
+</tbody>
+</table>
+<h2 id="implementation-steps">Implementation Steps</h2>
+<ol>
+<li><strong>Update <code>cleanse_utils.py</code></strong></li>
+<li>Add <code>migrate_old_schema(record)</code> that converts issue-76 schema records to the new format:<ul>
+<li>Moves <code>application_data</code> → <code>raw_payload_snapshot</code></li>
+<li>Initializes <code>cleansed_payload = null</code></li>
+<li>Copies <code>timestamp</code> → <code>updated_at</code></li>
+<li>Removes <code>status</code>, <code>cleansing_log</code>, <code>cleansed_at</code>, <code>best_contact_email</code> (if not in raw data)</li>
+</ul>
+</li>
+<li>
+<p>Add <code>is_new_schema(record)</code> helper.</p>
+</li>
+<li>
+<p><strong>Update <code>ingest_pipeline.py</code></strong></p>
+</li>
+<li>Replace <code>_partition_fields(record)</code> with <code>_build_raw_snapshot(record)</code>:<ul>
+<li>Returns <code>{"email": email, "raw_payload_snapshot": {all non-email CSV fields}, "cleansed_payload": null, "updated_at": record["timestamp"]}</code></li>
+</ul>
+</li>
+<li>Remove <code>status = "CLEANSED_PASSED"</code> from upsert — the ingest pipeline no longer marks records as cleansed.</li>
+<li>Update <code>upsert_records</code> to use <code>updated_at</code> instead of <code>timestamp</code>.</li>
+<li>Update conflict detection to compare <code>raw_payload_snapshot</code> instead of <code>application_data</code>.</li>
+<li>
+<p>Call <code>migrate_old_schema</code> on database records at load time if <code>raw_payload_snapshot</code> is absent.</p>
+</li>
+<li>
+<p><strong>Update <code>cleanse_pipeline.py</code></strong></p>
+</li>
+<li>Change <code>load_candidates</code> to return records where <code>cleansed_payload is None</code> (unprocessed) or where <code>updated_at</code> is older than a threshold (re-cleansing).</li>
+<li>Change <code>regex_cleanse</code> to read from <code>record["raw_payload_snapshot"]</code> and produce <code>cleansed_payload</code>.</li>
+<li>Change <code>detect_quarantine_signals</code> to scan <code>raw_payload_snapshot</code>.</li>
+<li>Remove <code>update_state</code> function — replace with a lightweight <code>touch_updated_at(record)</code>.</li>
+<li>Remove <code>log_quarantine</code> dependency on <code>cleansing_log</code>.</li>
+<li>
+<p>Update <code>run_cleanse_pipeline</code> orchestrator to write <code>cleansed_payload</code> instead of mutating <code>application_data</code>.</p>
+</li>
+<li>
+<p><strong>Write tests</strong></p>
+</li>
+<li><code>test_schema_migration.py</code>: Verify old records with <code>application_data</code> migrate correctly.</li>
+<li>Update <code>test_ingest_pipeline.py</code>: Assert new records have <code>raw_payload_snapshot</code> and <code>cleansed_payload = null</code>.</li>
+<li>
+<p>Update <code>test_cleanse_pipeline.py</code>: Assert cleansed output goes to <code>cleansed_payload</code>, raw remains untouched.</p>
+</li>
+<li>
+<p><strong>Run adversarial tests</strong></p>
+</li>
+<li>
+<p>Execute <code>adversarial_test_issue76.py</code> equivalents to verify no regressions in quarantine, regex, and Gemini behaviors.</p>
+</li>
+<li>
+<p><strong>Documentation</strong></p>
+</li>
+<li>Update module docstrings to reflect the new schema.</li>
+<li>Update PRD-2 backlog → completed.</li>
+</ol>
+<hr>
+<h2 id="test-strategy">Test Strategy</h2>
+<h3 id="unit-tests">Unit Tests</h3>
+<ul>
+<li><code>test_migrate_old_schema</code> — verifies all old fields map correctly, new fields are initialized.</li>
+<li><code>test_build_raw_snapshot</code> — verifies CSV rows become <code>raw_payload_snapshot</code> with email extracted.</li>
+<li><code>test_regex_cleanse_reads_raw_writes_cleansed</code> — verifies the read/write boundary.</li>
+<li><code>test_raw_payload_immutable</code> — asserts that after cleansing, <code>raw_payload_snapshot</code> is unchanged.</li>
+</ul>
+<h3 id="integration-tests">Integration Tests</h3>
+<ul>
+<li>Ingest a CSV → verify database records have <code>raw_payload_snapshot</code> and <code>null</code> <code>cleansed_payload</code>.</li>
+<li>Run cleanse pipeline → verify <code>cleansed_payload</code> is populated and <code>raw_payload_snapshot</code> is identical to pre-cleanse.</li>
+<li>Re-cleanse a record → verify <code>updated_at</code> changes but <code>raw_payload_snapshot</code> remains constant.</li>
+</ul>
+<h3 id="edge-cases">Edge Cases</h3>
+<ul>
+<li><strong>Old database with mixed schemas:</strong> Some records have <code>application_data</code>, others already have <code>raw_payload_snapshot</code>. The migration helper must handle both transparently.</li>
+<li><strong>Empty CSV fields:</strong> These should appear as empty strings in <code>raw_payload_snapshot</code>, not be omitted.</li>
+<li><strong>Unicode/emoji in raw data:</strong> Must survive untouched in <code>raw_payload_snapshot</code> and be NFC-normalized in <code>cleansed_payload</code>.</li>
+<li><strong>Quarantine path:</strong> Quarantined records should have <code>cleansed_payload = null</code> (or a quarantine marker) and an intact <code>raw_payload_snapshot</code>.</li>
+<li><strong>Gemini corrections:</strong> Corrections should be applied to <code>cleansed_payload</code>, never to <code>raw_payload_snapshot</code>.</li>
+</ul>
+<hr>
+<h2 id="risks-mitigations">Risks &amp; Mitigations</h2>
+<table>
+<thead>
+<tr>
+<th>Risk</th>
+<th>Mitigation</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Breaking existing databases</strong> (records use old schema)</td>
+<td>Implement <code>migrate_old_schema</code> helper; call it transparently on <code>load_database</code>. Write a one-time migration script and test it.</td>
+</tr>
+<tr>
+<td><strong>Tests from issue #76 break</strong></td>
+<td>The adversarial test file references <code>application_data</code>. Update it or create <code>adversarial_test_issue81.py</code> with the new schema assertions.</td>
+</tr>
+<tr>
+<td><strong>Data loss during migration</strong></td>
+<td>The migration copies <code>application_data</code> → <code>raw_payload_snapshot</code>; no destructive moves. The old fields are removed only after copying.</td>
+</tr>
+<tr>
+<td><strong>Performance regression</strong></td>
+<td>The new schema stores two copies of data (raw + cleansed). For 500 records/minute throughput target, this is negligible (dict references are cheap; only string values are duplicated).</td>
+</tr>
+<tr>
+<td><strong>Quarantine records lose state</strong></td>
+<td>Quarantine state is now implicit (<code>cleansed_payload is None</code> + presence in <code>cleaningissues.md</code>). Document this behavior.</td>
+</tr>
+</tbody>
+</table>
+<hr>
+<h2 id="diagrams">Diagrams</h2>
+<h3 id="schema-comparison-current-vs-target">Schema Comparison: Current vs Target</h3>
+<p><a class="glightbox" data-type="image" data-width="auto" data-height="auto" href="../issue-81-schema-comparison.png" data-desc-position="bottom"><img alt="Schema Comparison" src="../issue-81-schema-comparison.png"></a></p>
+<h3 id="pipeline-flow-target-architecture">Pipeline Flow (Target Architecture)</h3>
+<p><a class="glightbox" data-type="image" data-width="auto" data-height="auto" href="../issue-81-pipeline-flow.png" data-desc-position="bottom"><img alt="Pipeline Flow" src="../issue-81-pipeline-flow.png"></a></p>
+<h3 id="data-lifecycle">Data Lifecycle</h3>
+<p><a class="glightbox" data-type="image" data-width="auto" data-height="auto" href="../issue-81-data-lifecycle.png" data-desc-position="bottom"><img alt="Data Lifecycle" src="../issue-81-data-lifecycle.png"></a></p>
+<hr>
+<h2 id="appendix-schema-migration-specification">Appendix: Schema Migration Specification</h2>
+<h3 id="old-record-issue-76">Old Record (Issue #76)</h3>
+<pre><code class="language-json">{
+  "email": "alice@startup.io",
+  "best_contact_email": "alice@startup.io",
+  "timestamp": "2024-06-01T12:00:00Z",
+  "status": "CLEANSED_PASSED",
+  "application_data": {
+    "company_name": "Alice AI",
+    "industry": "SaaS"
+  },
+  "cleansing_log": [
+    {
+      "action": "CLEANSED_PASSED",
+      "timestamp": "2024-06-01T12:00:00Z",
+      "reason": "Regex/Gemini cleanse completed"
+    }
+  ],
+  "cleansed_at": "2024-06-01T12:00:00Z"
+}
+</code></pre>
+<h3 id="migrated-record-issue-81">Migrated Record (Issue #81)</h3>
+<pre><code class="language-json">{
+  "email": "alice@startup.io",
+  "raw_payload_snapshot": {
+    "best_contact_email": "alice@startup.io",
+    "timestamp": "2024-06-01T12:00:00Z",
+    "company_name": "Alice AI",
+    "industry": "SaaS"
+  },
+  "cleansed_payload": {
+    "best_contact_email": "alice@startup.io",
+    "timestamp": "2024-06-01T12:00:00Z",
+    "company_name": "Alice AI",
+    "industry": "SaaS"
+  },
+  "updated_at": "2024-06-01T12:00:00Z"
+}
+</code></pre>
+<h3 id="new-record-after-ingest-before-cleanse">New Record After Ingest (Before Cleanse)</h3>
+<pre><code class="language-json">{
+  "email": "bob@startup.io",
+  "raw_payload_snapshot": {
+    "best_contact_email": "bob@startup.io",
+    "timestamp": "2024-06-15T09:30:00Z",
+    "company_name": "Bob's   Bots",
+    "industry": "Robotics"
+  },
+  "cleansed_payload": null,
+  "updated_at": "2024-06-15T09:30:00Z"
+}
+</code></pre>
+<h3 id="new-record-after-cleanse">New Record After Cleanse</h3>
+<pre><code class="language-json">{
+  "email": "bob@startup.io",
+  "raw_payload_snapshot": {
+    "best_contact_email": "bob@startup.io",
+    "timestamp": "2024-06-15T09:30:00Z",
+    "company_name": "Bob's   Bots",
+    "industry": "Robotics"
+  },
+  "cleansed_payload": {
+    "best_contact_email": "bob@startup.io",
+    "timestamp": "2024-06-15T09:30:00Z",
+    "company_name": "Bob's Bots",
+    "industry": "Robotics"
+  },
+  "updated_at": "2024-06-15T09:31:00Z"
+}
+</code></pre>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": [], "search": "../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+    
+    
+      <script src="../../assets/javascripts/bundle.79ae519e.min.js"></script>
+      
+    
+  
+<script id="init-glightbox">const lightbox = GLightbox({"touchNavigation": true, "loop": false, "zoomable": true, "draggable": true, "openEffect": "zoom", "closeEffect": "zoom", "slideEffect": "slide"});
+document$.subscribe(()=>{ lightbox.reload(); });
+</script></body></html>

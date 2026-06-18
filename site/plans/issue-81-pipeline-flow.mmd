@@ -1,0 +1,48 @@
+flowchart TB
+    subgraph Ingest["Ingest Pipeline"]
+        CSV["applications.csv"]
+        PARSE["parse_csv()"]
+        BUILD["_build_raw_snapshot()"]
+        RAW["raw_payload_snapshot<br/>(pristine CSV row)"]
+        NULL["cleansed_payload = null"]
+        UPSERT["upsert_records()<br/>by email PK"]
+        ATOM1["save_database_atomic()"]
+    end
+
+    subgraph Cleanse["Cleanse Pipeline"]
+        LOAD["load_candidates()<br/>cleansed_payload is null"]
+        Q1{"Quarantine?"}
+        REGEX["regex_cleanse()<br/>raw → cleansed"]
+        Q2{"Changes needed?"}
+        GEMINI["gemini_cleanse()<br/>AI fallback"]
+        APPLY["apply_corrections()"]
+        WRITE["Write cleansed_payload"]
+        ATOM2["save_database_atomic()"]
+        QUAR["log_quarantine()"]
+    end
+
+    CSV --> PARSE
+    PARSE --> BUILD
+    BUILD --> RAW
+    BUILD --> NULL
+    RAW --> UPSERT
+    NULL --> UPSERT
+    UPSERT --> ATOM1
+
+    ATOM1 -->|"DB records with<br/>cleansed_payload=null"| LOAD
+    LOAD --> Q1
+    Q1 -->|"Hostile signals"| QUAR
+    Q1 -->|"Clean"| REGEX
+    REGEX --> Q2
+    Q2 -->|"Yes"| GEMINI
+    Q2 -->|"No"| WRITE
+    GEMINI --> APPLY
+    APPLY --> WRITE
+    WRITE --> ATOM2
+    QUAR --> ATOM2
+
+    style CSV fill:#3498db,color:#fff
+    style RAW fill:#f1c40f,color:#000
+    style NULL fill:#e74c3c,color:#fff
+    style WRITE fill:#2ecc71,color:#000
+    style QUAR fill:#e67e22,color:#fff
