@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+<style>
+  body { background: #1a1a1a; margin: 0; padding: 40px; display: flex; justify-content: center; }
+  .mermaid { background: #1a1a1a; }
+</style>
+</head>
+<body>
+<div class="mermaid">
+stateDiagram-v2
+    [*] --> RawIngested : CSV parsed
+    RawIngested : raw_payload_snapshot set<br/>cleansed_payload = null
+
+    RawIngested --> CleansePassed : regex + gemini cleanse
+    RawIngested --> QuarantineFailed : hostile pattern detected
+
+    CleansePassed : cleansed_payload populated<br/>updated_at timestamp set
+
+    QuarantineFailed : cleansed_payload = null<br/>logged to cleaningissues.md
+
+    CleansePassed --> [*] : persist to Database.json
+    QuarantineFailed --> [*] : persist to Database.json
+
+    CleansePassed --> ReCleanse : new cleanse rules / re-run
+    QuarantineFailed --> RawIngested : manual review clears
+
+    ReCleanse : re-read raw_payload_snapshot<br/>re-generate cleansed_payload
+
+    ReCleanse --> CleansePassed : cleanse succeeds
+    ReCleanse --> QuarantineFailed : still hostile
+
+    note right of RawIngested
+        Ingest pipeline sets this state.
+        raw_payload_snapshot is immutable
+        from this point forward.
+    end note
+
+    note right of CleansePassed
+        The raw_payload_snapshot
+        remains pristine for audit.
+        Only cleansed_payload is mutated.
+    end note
+</div>
+<script>
+  mermaid.initialize({ theme: 'dark', startOnLoad: true });
+</script>
+</body>
+</html>

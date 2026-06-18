@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    background: #1a1a2e;
+    font-family: 'Segoe UI', system-ui, sans-serif;
+    padding: 40px;
+    color: #e0e0e0;
+  }
+  h1 {
+    text-align: center;
+    color: #fff;
+    margin-bottom: 30px;
+    font-size: 22px;
+    letter-spacing: 0.5px;
+  }
+  .container {
+    display: flex;
+    gap: 40px;
+    justify-content: center;
+    max-width: 1200px;
+    margin: 0 auto;
+  }
+  .schema-box {
+    background: #16213e;
+    border-radius: 12px;
+    padding: 24px;
+    flex: 1;
+    max-width: 480px;
+    border: 2px solid #0f3460;
+  }
+  .schema-box h2 {
+    color: #e94560;
+    font-size: 16px;
+    margin-bottom: 16px;
+    text-align: center;
+    border-bottom: 1px solid #0f3460;
+    padding-bottom: 10px;
+  }
+  .schema-box.new h2 {
+    color: #00d9ff;
+  }
+  .field {
+    display: flex;
+    align-items: center;
+    padding: 8px 12px;
+    margin: 4px 0;
+    border-radius: 6px;
+    font-size: 13px;
+    font-family: 'SF Mono', Monaco, monospace;
+  }
+  .field.fixed {
+    background: #1a1a3e;
+    border-left: 3px solid #e94560;
+  }
+  .field.new-fixed {
+    background: #1a1a3e;
+    border-left: 3px solid #00d9ff;
+  }
+  .field.dynamic {
+    background: #0f3460;
+    border-left: 3px solid #f5a623;
+  }
+  .field.removed {
+    background: #2d132c;
+    border-left: 3px solid #666;
+    color: #888;
+    text-decoration: line-through;
+  }
+  .field.nested {
+    margin-left: 20px;
+    background: #1a1a3e;
+    border-left: 3px solid #f5a623;
+    font-size: 12px;
+  }
+  .label {
+    font-size: 10px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-left: auto;
+    opacity: 0.8;
+  }
+  .legend {
+    display: flex;
+    gap: 20px;
+    justify-content: center;
+    margin-top: 24px;
+    font-size: 12px;
+  }
+  .legend-item {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .dot {
+    width: 12px;
+    height: 12px;
+    border-radius: 3px;
+  }
+  .arrow-container {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 32px;
+    color: #00d9ff;
+  }
+</style>
+</head>
+<body>
+<h1>Schema Migration: Old → New</h1>
+<div class="container">
+  <div class="schema-box">
+    <h2>OLD SCHEMA (Flat)</h2>
+    <div class="field removed">
+      <span>application_id: "uuid-1234..."</span>
+      <span class="label">removed</span>
+    </div>
+    <div class="field fixed">
+      <span>email: "alice@example.com"</span>
+      <span class="label">fixed</span>
+    </div>
+    <div class="field fixed">
+      <span>best_contact_email: "alice@corp.com"</span>
+      <span class="label">fixed</span>
+    </div>
+    <div class="field fixed">
+      <span>status: "TO_BE_PROCESSED"</span>
+      <span class="label">fixed</span>
+    </div>
+    <div class="field fixed">
+      <span>timestamp: "2024-06-01"</span>
+      <span class="label">fixed</span>
+    </div>
+    <div class="field dynamic">
+      <span>name: "Alice Corp"</span>
+      <span class="label">dynamic</span>
+    </div>
+    <div class="field dynamic">
+      <span>funding_round: "Seed"</span>
+      <span class="label">dynamic</span>
+    </div>
+    <div class="field dynamic">
+      <span>description: "AI startup..."</span>
+      <span class="label">dynamic</span>
+    </div>
+    <div class="field dynamic">
+      <span>... (any CSV column)</span>
+      <span class="label">dynamic</span>
+    </div>
+  </div>
+
+  <div class="arrow-container">→</div>
+
+  <div class="schema-box new">
+    <h2>NEW SCHEMA (Nested)</h2>
+    <div class="field new-fixed">
+      <span>email: "alice@example.com"</span>
+      <span class="label">primary key</span>
+    </div>
+    <div class="field new-fixed">
+      <span>best_contact_email: "alice@corp.com"</span>
+      <span class="label">fixed</span>
+    </div>
+    <div class="field new-fixed">
+      <span>status: "CLEANSED_PASSED"</span>
+      <span class="label">fixed</span>
+    </div>
+    <div class="field new-fixed">
+      <span>timestamp: "2024-06-01"</span>
+      <span class="label">fixed</span>
+    </div>
+    <div class="field dynamic">
+      <span>application_data: { ... }</span>
+      <span class="label">dict</span>
+    </div>
+    <div class="field nested">
+      <span>name: "Alice Corp"</span>
+      <span class="label">dynamic</span>
+    </div>
+    <div class="field nested">
+      <span>funding_round: "Seed"</span>
+      <span class="label">dynamic</span>
+    </div>
+    <div class="field nested">
+      <span>description: "AI startup..."</span>
+      <span class="label">dynamic</span>
+    </div>
+    <div class="field nested">
+      <span>... (any CSV column)</span>
+      <span class="label">dynamic</span>
+    </div>
+  </div>
+</div>
+
+<div class="legend">
+  <div class="legend-item">
+    <div class="dot" style="background:#e94560;"></div>
+    <span>Fixed top-level field</span>
+  </div>
+  <div class="legend-item">
+    <div class="dot" style="background:#f5a623;"></div>
+    <span>Dynamic (inside application_data)</span>
+  </div>
+  <div class="legend-item">
+    <div class="dot" style="background:#666;"></div>
+    <span>Removed</span>
+  </div>
+</div>
+</body>
+</html>

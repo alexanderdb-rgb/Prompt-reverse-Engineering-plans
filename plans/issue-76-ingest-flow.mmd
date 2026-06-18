@@ -1,0 +1,33 @@
+flowchart TD
+    A["CSV File<br/>applications.csv"] --> B["parse_csv()"]
+    B --> C["Flat Dict Rows"]
+    C --> D{"Partition Fields"}
+    D -->|email| E["Top-level: email"]
+    D -->|best_contact_email| F["Top-level: best_contact_email"]
+    D -->|timestamp| G["Top-level: timestamp"]
+    D -->|all other columns| H["application_data dict"]
+    E --> I["Structured Record"]
+    F --> I
+    G --> I
+    H --> I
+    I --> J{"load_database()"}
+    J --> K["Existing DB Records"]
+    K --> L["get_max_timestamp()"]
+    L --> M{"filter_by_timestamp()"}
+    M -->|timestamp > max| N["Newer Records"]
+    M -->|timestamp <= max| O["Skip: Older/Equal"]
+    N --> P{"identify_conflicts()<br/>Same email, different data"}
+    P -->|Conflict| Q["Log to issues.md"]
+    P -->|No Conflict| R["upsert_records()<br/>Key: email"]
+    R -->|Email exists| S["Update application_data<br/>in-place"]
+    R -->|Email new| T["Append new record"]
+    S --> U["status = CLEANSED_PASSED"]
+    T --> U
+    U --> V["save_database_atomic()"]
+    V --> W["Database.json"]
+    Q --> V
+
+    style A fill:#16213e,stroke:#e94560,color:#fff
+    style W fill:#16213e,stroke:#00d9ff,color:#fff
+    style U fill:#0f3460,stroke:#f5a623,color:#fff
+    style Q fill:#2d132c,stroke:#e94560,color:#fff

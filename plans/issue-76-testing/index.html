@@ -1,0 +1,570 @@
+<!DOCTYPE html><html lang="en" class="no-js"><head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+      
+      
+      
+      
+      
+        
+      
+      
+      <link rel="icon" href="../../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.6">
+    
+    
+      
+        <title>Issue #76 - Testing Report - Implementation Plans</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../assets/stylesheets/main.484c7ddc.min.css">
+      
+        
+        <link rel="stylesheet" href="../../assets/stylesheets/palette.ab4e12ef.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="">
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&amp;display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+    <script>__md_scope=new URL("../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  <link href="../../assets/stylesheets/glightbox.min.css" rel="stylesheet"><script src="../../assets/javascripts/glightbox.min.js"></script><style id="glightbox-style">
+            html.glightbox-open { overflow: initial; height: 100%; }
+            .gslide-title { margin-top: 0px; user-select: text; }
+            .gslide-desc { color: #666; user-select: text; }
+            .gslide-image img { background: white; }
+            .gscrollbar-fixer { padding-right: 15px; }
+            .gdesc-inner { font-size: 0.75rem; }
+            body[data-md-color-scheme="slate"] .gdesc-inner { background: var(--md-default-bg-color); }
+            body[data-md-color-scheme="slate"] .gslide-title { color: var(--md-default-fg-color); }
+            body[data-md-color-scheme="slate"] .gslide-desc { color: var(--md-default-fg-color); }
+        </style></head>
+  
+  
+    
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="slate" data-md-color-primary="indigo" data-md-color-accent="indigo">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#issue-76-testing-report" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+  
+
+<header class="md-header md-header--shadow" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href="../.." title="Implementation Plans" class="md-header__button md-logo" aria-label="Implementation Plans" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"></path></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"></path></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            Implementation Plans
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              Issue #76 - Testing Report
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+    
+    
+    
+    
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation">
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+
+<nav class="md-nav md-nav--primary" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../.." title="Implementation Plans" class="md-nav__button md-logo" aria-label="Implementation Plans" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"></path></svg>
+
+    </a>
+    Implementation Plans
+  </label>
+  
+  <ul class="md-nav__list" data-md-scrollfix="">
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../.." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Home
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2">
+        
+          
+          <label class="md-nav__link" for="__nav_2" id="__nav_2_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Plans
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_2">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Plans
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix="">
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../issue-76-plan/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Issue #76 – Re-implement PRD-1 with email-primary schema
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../issue-81-plan/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Issue #81 – PRD-2 Re-implementation
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc">
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix="">
+      
+        <li class="md-nav__item">
+  <a href="#tests-performed" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Tests Performed
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#bugs-found-fixed" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Bugs Found &amp; Fixed
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#verified-robust-against" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Verified Robust Against
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+
+<h1 id="issue-76-testing-report">Issue #76 - Testing Report</h1>
+<h2 id="tests-performed">Tests Performed</h2>
+<table>
+<thead>
+<tr>
+<th>Test</th>
+<th>Result</th>
+<th>Notes</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Empty application_data</td>
+<td>PASS</td>
+<td>Records with only fixed columns produce empty dict</td>
+</tr>
+<tr>
+<td>Very large application_data (10K chars)</td>
+<td>PASS</td>
+<td>Handled without error</td>
+</tr>
+<tr>
+<td>Unicode and emoji in application_data</td>
+<td>PASS</td>
+<td>Preserved correctly</td>
+</tr>
+<tr>
+<td>Special characters in email</td>
+<td>PASS</td>
+<td>Used as key successfully</td>
+</tr>
+<tr>
+<td>Same email, same timestamp, different data</td>
+<td>PASS</td>
+<td>Correctly flagged as conflict</td>
+</tr>
+<tr>
+<td>Same email, different data, newer timestamp</td>
+<td>PASS</td>
+<td>No conflict, newer record wins</td>
+</tr>
+<tr>
+<td>Blank/whitespace email variations</td>
+<td>PASS</td>
+<td>Routed to issues.md (bug found &amp; fixed)</td>
+</tr>
+<tr>
+<td>Missing best_contact_email</td>
+<td>PASS</td>
+<td>Record still valid with fallback</td>
+</tr>
+<tr>
+<td>Old flat schema backward compat</td>
+<td>PASS</td>
+<td>Legacy records preserved, new records use new schema</td>
+</tr>
+<tr>
+<td>Rapid sequential upserts (100x)</td>
+<td>PASS</td>
+<td>Correct final state</td>
+</tr>
+<tr>
+<td>Hostile patterns in nested application_data</td>
+<td>PASS</td>
+<td>Detected at any depth</td>
+</tr>
+<tr>
+<td>Regex cleanse preserves top-level fields</td>
+<td>PASS</td>
+<td>email/status/timestamp untouched</td>
+</tr>
+<tr>
+<td>CLEANSED_PASSED re-cleansing</td>
+<td>PASS</td>
+<td>Eligible for re-processing</td>
+</tr>
+<tr>
+<td>Empty CSV (header only)</td>
+<td>PASS</td>
+<td>Creates empty database</td>
+</tr>
+<tr>
+<td>Unit test suite: test_ingest_pipeline.py</td>
+<td>PASS</td>
+<td>32/32 tests passed</td>
+</tr>
+<tr>
+<td>Unit test suite: test_cleanse_pipeline.py</td>
+<td>PASS</td>
+<td>54/54 tests passed</td>
+</tr>
+<tr>
+<td>Full project test suite</td>
+<td>PASS</td>
+<td>181 passed, 7 pre-existing failures (gemini API key)</td>
+</tr>
+<tr>
+<td>Type checking (mypy)</td>
+<td>PASS</td>
+<td>No new type errors in changed files</td>
+</tr>
+</tbody>
+</table>
+<h2 id="bugs-found-fixed">Bugs Found &amp; Fixed</h2>
+<ol>
+<li><strong>Whitespace-only emails treated as valid</strong> (adversarial finding)</li>
+<li><strong>Root cause</strong>: Python truthiness of <code>"   "</code> is <code>True</code>, so whitespace-only strings passed email validation.</li>
+<li><strong>Fix</strong>: Explicitly strip email with <code>str(r.get("email", "")).strip()</code> before validation in both <code>identify_conflicts()</code> and <code>upsert_records()</code>.</li>
+<li>
+<p><strong>Commit</strong>: <code>fix(issue-76): strip and validate emails to handle whitespace-only input</code></p>
+</li>
+<li>
+<p><strong>Cleanse pipeline DB reference mismatch</strong> (integration finding)</p>
+</li>
+<li><strong>Root cause</strong>: <code>load_candidates()</code> called <code>load_database()</code> independently, creating separate dict objects from <code>database</code>. Quarantine state updates mutated the candidate list but not the actual database.</li>
+<li><strong>Fix</strong>: Derive <code>candidates</code> directly from the already-loaded <code>database</code> list to preserve object references for in-place mutation.</li>
+<li><strong>Commit</strong>: <code>fix(issue-76): re-architect pipelines for email-primary schema with application_data nesting</code></li>
+</ol>
+<h2 id="verified-robust-against">Verified Robust Against</h2>
+<ul>
+<li>Empty/null/undefined inputs</li>
+<li>Maximum length inputs (10K+ character strings)</li>
+<li>Special characters and unicode (including emoji)</li>
+<li>Concurrent rapid upserts on same email</li>
+<li>Missing optional fields (best_contact_email)</li>
+<li>Old flat-schema database records (backward compatibility)</li>
+<li>Deeply nested application_data structures</li>
+<li>Hostile patterns at any nesting depth</li>
+<li>Empty CSV payloads</li>
+<li>Whitespace-only email strings</li>
+<li>Re-cleansing of already-CLEANSED_PASSED records</li>
+</ul>
+<hr>
+<p><strong>Report generated</strong>: 2026-06-18
+<strong>Issue</strong>: <a href="https://github.com/alexanderdb-rgb/Prompt-reverse-Engineering/issues/76">#76</a>
+<strong>Status</strong>: Complete</p>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": [], "search": "../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+    
+    
+      <script src="../../assets/javascripts/bundle.79ae519e.min.js"></script>
+      
+    
+  
+<script id="init-glightbox">const lightbox = GLightbox({"touchNavigation": true, "loop": false, "zoomable": true, "draggable": true, "openEffect": "zoom", "closeEffect": "zoom", "slideEffect": "slide"});
+document$.subscribe(()=>{ lightbox.reload(); });
+</script></body></html>

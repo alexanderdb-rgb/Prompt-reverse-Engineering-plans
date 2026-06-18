@@ -1,0 +1,1008 @@
+<!DOCTYPE html><html lang="en" class="no-js"><head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+      
+      
+      
+        <link rel="prev" href="../..">
+      
+      
+        <link rel="next" href="../issue-81-plan/">
+      
+      
+        
+      
+      
+      <link rel="icon" href="../../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.6">
+    
+    
+      
+        <title>Issue #76 – Re-implement PRD-1 with email-primary schema - Implementation Plans</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../assets/stylesheets/main.484c7ddc.min.css">
+      
+        
+        <link rel="stylesheet" href="../../assets/stylesheets/palette.ab4e12ef.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="">
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&amp;display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+    <script>__md_scope=new URL("../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  <link href="../../assets/stylesheets/glightbox.min.css" rel="stylesheet"><script src="../../assets/javascripts/glightbox.min.js"></script><style id="glightbox-style">
+            html.glightbox-open { overflow: initial; height: 100%; }
+            .gslide-title { margin-top: 0px; user-select: text; }
+            .gslide-desc { color: #666; user-select: text; }
+            .gslide-image img { background: white; }
+            .gscrollbar-fixer { padding-right: 15px; }
+            .gdesc-inner { font-size: 0.75rem; }
+            body[data-md-color-scheme="slate"] .gdesc-inner { background: var(--md-default-bg-color); }
+            body[data-md-color-scheme="slate"] .gslide-title { color: var(--md-default-fg-color); }
+            body[data-md-color-scheme="slate"] .gslide-desc { color: var(--md-default-fg-color); }
+        </style></head>
+  
+  
+    
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="slate" data-md-color-primary="indigo" data-md-color-accent="indigo">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#issue-76-re-implement-prd-1-with-email-primary-schema-and-application_data-dict" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+  
+
+<header class="md-header md-header--shadow" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href="../.." title="Implementation Plans" class="md-header__button md-logo" aria-label="Implementation Plans" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"></path></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"></path></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            Implementation Plans
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              Issue #76 – Re-implement PRD-1 with email-primary schema
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+    
+    
+    
+    
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation">
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+
+<nav class="md-nav md-nav--primary" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../.." title="Implementation Plans" class="md-nav__button md-logo" aria-label="Implementation Plans" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"></path></svg>
+
+    </a>
+    Implementation Plans
+  </label>
+  
+  <ul class="md-nav__list" data-md-scrollfix="">
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../.." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Home
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+    
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2" checked="">
+        
+          
+          <label class="md-nav__link" for="__nav_2" id="__nav_2_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Plans
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_2">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Plans
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix="">
+            
+              
+                
+  
+  
+    
+  
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Issue #76 – Re-implement PRD-1 with email-primary schema
+  
+
+    
+  </span>
+  
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Issue #76 – Re-implement PRD-1 with email-primary schema
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix="">
+      
+        <li class="md-nav__item">
+  <a href="#summary" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Summary
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#root-cause-analysis" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Root Cause Analysis
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#proposed-solution" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Proposed Solution
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Proposed Solution">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#high-level-approach" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        High-Level Approach
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#files-to-modify" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Files to Modify
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#new-files" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        New Files
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#implementation-steps" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Implementation Steps
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#test-strategy" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Test Strategy
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#risks-mitigations" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Risks &amp; Mitigations
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#diagrams" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Diagrams
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Diagrams">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#architecture-old-schema-vs-new-schema" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Architecture: Old Schema vs. New Schema
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#data-flow-ingestion-pipeline-new" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Data Flow: Ingestion Pipeline (New)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#sequence-email-based-upsert" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Sequence: Email-Based Upsert
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../issue-81-plan/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Issue #81 – PRD-2 Re-implementation
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc">
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix="">
+      
+        <li class="md-nav__item">
+  <a href="#summary" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Summary
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#root-cause-analysis" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Root Cause Analysis
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#proposed-solution" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Proposed Solution
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Proposed Solution">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#high-level-approach" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        High-Level Approach
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#files-to-modify" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Files to Modify
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#new-files" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        New Files
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#implementation-steps" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Implementation Steps
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#test-strategy" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Test Strategy
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#risks-mitigations" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Risks &amp; Mitigations
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#diagrams" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Diagrams
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Diagrams">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#architecture-old-schema-vs-new-schema" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Architecture: Old Schema vs. New Schema
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#data-flow-ingestion-pipeline-new" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Data Flow: Ingestion Pipeline (New)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#sequence-email-based-upsert" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Sequence: Email-Based Upsert
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+
+<h1 id="issue-76-re-implement-prd-1-with-email-primary-schema-and-application_data-dict">Issue #76: Re-implement PRD-1 with Email-Primary Schema and <code>application_data</code> Dict</h1>
+<h2 id="summary">Summary</h2>
+<p>Re-architect <code>ingest_pipeline.py</code> to use <code>email</code> as the primary key (replacing <code>application_id</code>/UUIDv4) and nest all dynamic CSV fields inside an <code>application_data</code> dictionary. Update <code>cleanse_pipeline.py</code> to align with the new record structure. The design principle is <strong>flexibility first</strong>: only <code>email</code>, <code>best_contact_email</code>, <code>status</code>, <code>timestamp</code>, and <code>application_data</code> are fixed top-level fields; everything inside <code>application_data</code> is completely dynamic.</p>
+<h2 id="root-cause-analysis">Root Cause Analysis</h2>
+<p>The current implementation hard-codes a flat record structure where every CSV column becomes a top-level field. This creates several problems:</p>
+<ol>
+<li><strong>Schema rigidity</strong>: Adding a new CSV column requires the database record format to change implicitly — old records lack the new field, and code may accidentally depend on specific field names.</li>
+<li><strong>Identity fragmentation</strong>: Using <code>application_id</code> (UUIDv4) as the primary key separates the ingestion identity from the natural business key (<code>email</code>), requiring duplicate tracking.</li>
+<li><strong>Cleanse pipeline coupling</strong>: <code>cleanse_pipeline.py</code> currently looks up records by <code>application_id</code> and quarantine-logs by <code>application_id</code>, which becomes meaningless when the source of truth is <code>email</code>.</li>
+<li><strong>Status flow mismatch</strong>: PRD-1 originally set <code>TO_BE_PROCESSED</code>, but the updated PRD-1 requires <code>CLEANSED_PASSED</code> directly after ingestion since the incoming CSV is already considered sanitized.</li>
+</ol>
+<h2 id="proposed-solution">Proposed Solution</h2>
+<h3 id="high-level-approach">High-Level Approach</h3>
+<ol>
+<li><strong>Refactor <code>ingest_pipeline.py</code></strong>:</li>
+<li>Parse CSV and partition fields into fixed top-level (<code>email</code>, <code>best_contact_email</code>, <code>timestamp</code>) vs. dynamic (<code>application_data</code>).</li>
+<li>Remove all <code>uuid</code> and <code>application_id</code> generation/lookup logic.</li>
+<li>Rewrite <code>upsert_records</code> to key by <code>email</code> instead of <code>application_id</code>.</li>
+<li>Rewrite conflict detection: a conflict occurs when two records share the same <code>email</code> but have different <code>application_data</code> snapshots <strong>without</strong> a strictly newer timestamp to resolve the ambiguity.</li>
+<li>Set <code>status = "CLEANSED_PASSED"</code> on ingestion (not <code>"TO_BE_PROCESSED"</code>).</li>
+<li>
+<p>Preserve atomic persistence and incremental delta filtering.</p>
+</li>
+<li>
+<p><strong>Refactor <code>cleanse_pipeline.py</code></strong>:</p>
+</li>
+<li>Update <code>load_candidates</code> to query by <code>status == "TO_BE_PROCESSED"</code> (for backward compatibility with records already in that state) or work on <code>CLEANSED_PASSED</code> if no <code>TO_BE_PROCESSED</code> records exist.</li>
+<li>Change record lookups from <code>application_id</code> to <code>email</code>.</li>
+<li>Update <code>log_quarantine</code> to reference <code>email</code> instead of <code>application_id</code>.</li>
+<li>
+<p>Ensure <code>regex_cleanse</code> walks the <code>application_data</code> subtree, not the entire record (to avoid mutating fixed fields like <code>email</code> and <code>timestamp</code>).</p>
+</li>
+<li>
+<p><strong>Rewrite test suites</strong>:</p>
+</li>
+<li><code>test_ingest_pipeline.py</code>: ~29 tests rewritten for email-primary upsert, <code>application_data</code> dict, <code>CLEANSED_PASSED</code> status, missing-email logging, and flexible schema.</li>
+<li>
+<p><code>test_cleanse_pipeline.py</code>: ~46 tests updated for <code>email</code>-based lookups and <code>application_data</code> cleansing.</p>
+</li>
+<li>
+<p><strong>Update documentation</strong>:</p>
+</li>
+<li>Move <code>prd-1-application-ingestion-modification-service.md</code> from <code>backlog/</code> to <code>completed/</code> once implemented.</li>
+</ol>
+<h2 id="files-to-modify">Files to Modify</h2>
+<table>
+<thead>
+<tr>
+<th>File</th>
+<th>Change</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>ingest_pipeline.py</code></td>
+<td>Remove <code>uuid</code> import; rewrite <code>upsert_records</code> to key by <code>email</code>; nest dynamic fields into <code>application_data</code>; set <code>status = "CLEANSED_PASSED"</code>; update conflict detection</td>
+</tr>
+<tr>
+<td><code>cleanse_pipeline.py</code></td>
+<td>Replace <code>application_id</code> lookups with <code>email</code>; quarantine log by <code>email</code>; cleanse only <code>application_data</code> subtree; update <code>load_candidates</code> logic</td>
+</tr>
+<tr>
+<td><code>tests/test_ingest_pipeline.py</code></td>
+<td>Rewrite all tests for new schema: email upsert, <code>application_data</code> dict, no UUID assertions, <code>CLEANSED_PASSED</code> status</td>
+</tr>
+<tr>
+<td><code>tests/test_cleanse_pipeline.py</code></td>
+<td>Update record fixtures to use <code>email</code>-primary schema; update quarantine log assertions</td>
+</tr>
+<tr>
+<td><code>documentation/backlog/prd-1-application-ingestion-modification-service.md</code></td>
+<td>Mark sections as implemented or move to <code>completed/</code></td>
+</tr>
+</tbody>
+</table>
+<h2 id="new-files">New Files</h2>
+<table>
+<thead>
+<tr>
+<th>File</th>
+<th>Purpose</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>tests/test_ingest_pipeline_v2.py</code></td>
+<td><em>(optional)</em> If incremental migration is preferred, new test file for new schema while keeping old tests temporarily</td>
+</tr>
+</tbody>
+</table>
+<h2 id="implementation-steps">Implementation Steps</h2>
+<ol>
+<li><strong>Backup &amp; baseline</strong></li>
+<li>Run full test suite: <code>pytest tests/ -v</code> → verify 177 passes (current baseline).</li>
+<li>
+<p>Create a temporary copy of <code>ingest_pipeline.py</code> and <code>cleanse_pipeline.py</code> for reference.</p>
+</li>
+<li>
+<p><strong>Redesign <code>ingest_pipeline.py</code> — core logic</strong></p>
+</li>
+<li>Remove <code>import uuid</code> and all <code>uuid.uuid4()</code> calls.</li>
+<li>In <code>upsert_records</code>, build <code>db_by_email</code> instead of <code>db_by_id</code>.</li>
+<li>When a record arrives, extract <code>email</code>, <code>best_contact_email</code>, <code>timestamp</code> as top-level fields.</li>
+<li>All remaining CSV columns go into <code>application_data</code>.</li>
+<li>If <code>email</code> exists in DB and incoming timestamp &gt; existing timestamp: update <code>application_data</code> in-place and refresh <code>timestamp</code>/<code>status</code>.</li>
+<li>If <code>email</code> does not exist: append new record with <code>status = "CLEANSED_PASSED"</code>.</li>
+<li>
+<p>If <code>email</code> exists but incoming timestamp &lt;= existing timestamp: skip (delta filtering already handles this, but double-check).</p>
+</li>
+<li>
+<p><strong>Redesign <code>ingest_pipeline.py</code> — conflict detection</strong></p>
+</li>
+<li>Change <code>identify_conflicts</code> to group by <code>email</code>.</li>
+<li>A conflict = same <code>email</code>, different <code>application_data</code>, and no clear newer timestamp winner.</li>
+<li>Route conflicts to <code>issues.md</code> with full record snapshot.</li>
+<li>
+<p>Records without <code>email</code> are logged to <code>issues.md</code> as "missing email" (no DB insertion).</p>
+</li>
+<li>
+<p><strong>Update <code>cleanse_pipeline.py</code> — schema alignment</strong></p>
+</li>
+<li>In <code>run_cleanse_pipeline</code>, build <code>db_by_email</code> instead of <code>db_by_id</code>.</li>
+<li>In <code>log_quarantine</code>, use <code>record.get("email", "N/A")</code> instead of <code>application_id</code>.</li>
+<li>In <code>regex_cleanse</code>, apply <code>walk_dict</code> to <code>record["application_data"]</code> instead of the full record.</li>
+<li>
+<p>Preserve <code>email</code>, <code>best_contact_email</code>, <code>status</code>, <code>timestamp</code>, <code>cleansed_at</code>, <code>cleansing_log</code> at top level.</p>
+</li>
+<li>
+<p><strong>Rewrite <code>tests/test_ingest_pipeline.py</code></strong></p>
+</li>
+<li>Update <code>_write_csv</code> fixtures to include <code>best_contact_email</code> column.</li>
+<li>Update assertions: no <code>application_id</code> checks; check <code>application_data</code> contains dynamic fields.</li>
+<li>Check <code>status == "CLEANSED_PASSED"</code> instead of <code>"TO_BE_PROCESSED"</code>.</li>
+<li>Add tests for missing <code>email</code> logging.</li>
+<li>
+<p>Add tests for dynamic schema within <code>application_data</code>.</p>
+</li>
+<li>
+<p><strong>Update <code>tests/test_cleanse_pipeline.py</code></strong></p>
+</li>
+<li>Update <code>_make_record</code> helper to use <code>email</code>-primary schema.</li>
+<li>Update quarantine log assertions to check for <code>email</code>.</li>
+<li>
+<p>Verify <code>application_data</code> fields are cleansed while top-level fields are untouched.</p>
+</li>
+<li>
+<p><strong>Documentation &amp; PRD status</strong></p>
+</li>
+<li>Move <code>documentation/backlog/prd-1-application-ingestion-modification-service.md</code> to <code>documentation/completed/</code>.</li>
+<li>
+<p>Update README project structure section.</p>
+</li>
+<li>
+<p><strong>Final validation</strong></p>
+</li>
+<li>Run full test suite: <code>pytest tests/ -v</code> → target 100% pass.</li>
+<li>Run manual pipeline integration test with sample CSV.</li>
+<li>Verify <code>Database.json</code> output matches expected schema.</li>
+</ol>
+<h2 id="test-strategy">Test Strategy</h2>
+<ul>
+<li><strong>Unit tests</strong>:</li>
+<li><code>parse_csv</code> still returns flat dicts (no change in CSV parsing).</li>
+<li><code>timestamp_greater</code> and <code>get_max_timestamp</code> unchanged.</li>
+<li>New: <code>_partition_fields(record)</code> → correctly splits fixed vs. dynamic fields.</li>
+<li>New: <code>upsert_records</code> with email key → new record, update existing, skip older.</li>
+<li>
+<p>New: <code>identify_conflicts</code> with <code>application_data</code> comparison.</p>
+</li>
+<li>
+<p><strong>Integration tests</strong>:</p>
+</li>
+<li>Full pipeline run with new CSV → Database.json has correct schema.</li>
+<li>Email upsert: same email, newer timestamp → <code>application_data</code> updated.</li>
+<li>Email conflict: same email, different data, ambiguous timestamps → routed to <code>issues.md</code>.</li>
+<li>Missing email: row without email → routed to <code>issues.md</code>, no DB insertion.</li>
+<li>
+<p>Dynamic columns: new CSV column appears → automatically nested in <code>application_data</code>.</p>
+</li>
+<li>
+<p><strong>Edge cases</strong>:</p>
+</li>
+<li>Empty <code>application_data</code> (CSV has only fixed columns).</li>
+<li><code>best_contact_email</code> missing → use <code>email</code> as fallback, or log as issue.</li>
+<li>Very large <code>application_data</code> payloads (10K+ chars per field).</li>
+<li>Concurrent pipeline runs (atomic persistence already handles this).</li>
+<li>Backward compatibility: existing <code>Database.json</code> with old flat schema → migration or graceful handling.</li>
+</ul>
+<h2 id="risks-mitigations">Risks &amp; Mitigations</h2>
+<table>
+<thead>
+<tr>
+<th>Risk</th>
+<th>Mitigation</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Breaking <code>cleanse_pipeline.py</code> that already works (46 tests pass)</td>
+<td>Update carefully; preserve all regex/gemini/quarantine logic; only change record accessors and field scope</td>
+</tr>
+<tr>
+<td>Test suite explosion during rewrite</td>
+<td>Rewrite tests incrementally; run <code>pytest tests/test_ingest_pipeline.py</code> first, then <code>tests/test_cleanse_pipeline.py</code>, then full suite</td>
+</tr>
+<tr>
+<td>Hard-coding field names inside <code>application_data</code></td>
+<td>Code review: grep for string literals that look like CSV column names inside pipeline logic; all field access should be dynamic</td>
+</tr>
+<tr>
+<td>Data loss from removing <code>application_id</code></td>
+<td><code>application_id</code> is out of scope per PRD-1; no migration needed; old records with <code>application_id</code> will have it as an extra key in <code>application_data</code> if present in CSV</td>
+</tr>
+<tr>
+<td><code>best_contact_email</code> missing from CSV</td>
+<td>Fallback to <code>email</code> if <code>best_contact_email</code> column is absent; log warning if both are missing</td>
+</tr>
+<tr>
+<td>Existing <code>Database.json</code> with old flat schema</td>
+<td>On first run, detect old schema and either auto-migrate (move non-fixed fields into <code>application_data</code>) or raise clear error</td>
+</tr>
+<tr>
+<td><code>cleanse_pipeline</code> has no <code>TO_BE_PROCESSED</code> records because ingestion now sets <code>CLEANSED_PASSED</code></td>
+<td>Update <code>load_candidates</code> to also query <code>CLEANSED_PASSED</code> if no <code>TO_BE_PROCESSED</code> found, or change ingestion to set <code>TO_BE_PROCESSED</code> and let cleanse set <code>CLEANSED_PASSED</code> → <strong>decision needed</strong> (see note below)</td>
+</tr>
+</tbody>
+</table>
+<blockquote>
+<p><strong>Note on Status Flow</strong>: The issue acceptance criteria state "Status is set to <code>CLEANSED_PASSED</code> after ingestion." However, <code>cleanse_pipeline.py</code> currently only processes <code>TO_BE_PROCESSED</code> records. Two options:
+1. <strong>Option A (recommended)</strong>: Ingestion sets <code>CLEANSED_PASSED</code>. Cleanse pipeline is updated to also process <code>CLEANSED_PASSED</code> records (for edge-case re-cleansing) or is bypassed for standard flow.
+2. <strong>Option B</strong>: Ingestion sets <code>TO_BE_PROCESSED</code>; cleanse pipeline runs as before and sets <code>CLEANSED_PASSED</code>. This contradicts the acceptance criteria.</p>
+<p><strong>Recommendation</strong>: Implement Option A. Update <code>load_candidates</code> in <code>cleanse_pipeline.py</code> to load both <code>TO_BE_PROCESSED</code> (backward compatibility) and <code>CLEANSED_PASSED</code> (re-cleansing). This preserves the cleanse pipeline's utility while meeting the issue requirements.</p>
+</blockquote>
+<h2 id="diagrams">Diagrams</h2>
+<h3 id="architecture-old-schema-vs-new-schema">Architecture: Old Schema vs. New Schema</h3>
+<p><a class="glightbox" data-type="image" data-width="auto" data-height="auto" href="../issue-76-schema.png" data-desc-position="bottom"><img alt="Schema Comparison" src="../issue-76-schema.png"></a></p>
+<h3 id="data-flow-ingestion-pipeline-new">Data Flow: Ingestion Pipeline (New)</h3>
+<p><a class="glightbox" data-type="image" data-width="auto" data-height="auto" href="../issue-76-ingest-flow.png" data-desc-position="bottom"><img alt="Ingestion Flow" src="../issue-76-ingest-flow.png"></a></p>
+<h3 id="sequence-email-based-upsert">Sequence: Email-Based Upsert</h3>
+<p><a class="glightbox" data-type="image" data-width="auto" data-height="auto" href="../issue-76-upsert-sequence.png" data-desc-position="bottom"><img alt="Upsert Sequence" src="../issue-76-upsert-sequence.png"></a></p>
+<hr>
+<p><strong>Plan created</strong>: 2026-06-18<br>
+<strong>Issue</strong>: <a href="https://github.com/alexanderdb-rgb/Prompt-reverse-Engineering/issues/76">#76</a><br>
+<strong>Status</strong>: Pending approval</p>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": [], "search": "../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+    
+    
+      <script src="../../assets/javascripts/bundle.79ae519e.min.js"></script>
+      
+    
+  
+<script id="init-glightbox">const lightbox = GLightbox({"touchNavigation": true, "loop": false, "zoomable": true, "draggable": true, "openEffect": "zoom", "closeEffect": "zoom", "slideEffect": "slide"});
+document$.subscribe(()=>{ lightbox.reload(); });
+</script></body></html>
